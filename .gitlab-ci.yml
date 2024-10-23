@@ -1,0 +1,33 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: None
+
+Build Docker Image:
+  stage: .pre
+  tags:
+    - x86_64
+  image:
+    name: gcr.io/kaniko-project/executor:v1.23.2-debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --build-arg "PROJECT_DIR=${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}:latest"
+  # only run this if the Dockerfile has changed
+  rules:
+    - changes:
+        - Dockerfile
+
+Build in Docker:
+  stage: build
+  tags:
+    - x86_64
+  image: ${CI_REGISTRY_IMAGE}:latest
+  script: ./make-packages.sh
+  artifacts:
+    untracked: false
+    when: on_success
+    access: all
+    paths:
+      - ${CI_PROJECT_DIR}/artifacts
