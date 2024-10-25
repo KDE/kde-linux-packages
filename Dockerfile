@@ -49,5 +49,7 @@ RUN curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar x
 # https://invent.kde.org/sysadmin/repo-metadata/-/issues/12
 RUN kde-builder --install-distro-packages --prompt-answer yes
 
+RUN paru -S --noconfirm --needed --skipreview aurutils
+
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]

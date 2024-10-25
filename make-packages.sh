@@ -41,6 +41,12 @@ extraDeps=(
 
 packages=''
 
+AUR_TARGETS=(
+    snapd
+    steam-devices-git
+    systemd-bootchart
+)
+
 KDE_BUILDER_TARGET=(
     "pulseaudio-qt"
     "plasma-workspace"
@@ -207,7 +213,7 @@ artifactsDir=$CI_PROJECT_DIR/artifacts
 bananaDir=$artifactsDir/banana
 bananaDebugDir=$artifactsDir/banana-debug
 
-# Move the debug packages out into their own repo
+# Move the debug packages first so regular packages are easier to find
 mkdir -p $bananaDebugDir
 mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
 repo-add $bananaDebugDir/banana-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
@@ -215,6 +221,17 @@ repo-add $bananaDebugDir/banana-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
 mkdir -p $bananaDir
 mv $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
 repo-add $bananaDir/banana.db.tar.gz $bananaDir/*.pkg.tar.zst
+
+# aurutils *really* doesn't like it if the repo is not in pacman.conf
+sudo tee -a /etc/pacman.conf <<- EOF
+[banana]
+SigLevel = Never
+Server = file://$bananaDir
+EOF
+sudo pacman --sync --refresh
+
+# This fetches from AUR, builds and adds to our repo in one command :D
+aur sync --no-view --no-confirm --database banana "${AUR_TARGETS[@]}"
 
 # Gitlab artifacts does not seem to like symlinks so we make copies
 find $artifactsDir -type l | while read file; do
