@@ -49,7 +49,7 @@ AUR_TARGETS=(
 
 KDE_BUILDER_TARGET=(
     "pulseaudio-qt"
-    "plasma-workspace"
+    "workspace"
     "dolphin-plugins"
     "ffmpegthumbs"
     "kdegraphics-thumbnailers"
@@ -79,7 +79,7 @@ toRemove=(
 sudo pacman --remove --noconfirm ${toRemove[@]}
 
 for target in $allTargets; do
-    if [[ "${skipPackages[@]}" =~ $target ]]; then
+    if [[ "${skipPackages[@]}" =~ $target || "${useSystemPackages[@]}" =~ $target ]]; then
         continue
     fi
 
@@ -176,11 +176,10 @@ EOF
 
 done
 
-packages=$(
-    for target in ${KDE_BUILDER_TARGET[@]}; do
-        echo -n "kde-banana-$target-git "
-    done
-)
+# Assume all directories in pkgbuildsDir are packages to build
+# We have to do this because some targets like `workspace` are
+# not actually packages.
+packages=$(basename -a $pkgbuildsDir/kde-banana-*)
 
 # Install already built packages in parallel for a speedup (except debug packages)
 alreadyBuiltPackages="$(find $pkgbuildsDir -name '*.pkg.tar.zst' | grep -v -- '-git-debug-' || true)"
@@ -213,7 +212,7 @@ mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
 repo-add $bananaDebugDir/banana-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
 
 mkdir -p $bananaDir
-mv $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
+ln $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
 repo-add $bananaDir/banana.db.tar.gz $bananaDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf

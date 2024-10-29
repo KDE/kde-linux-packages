@@ -27,7 +27,8 @@ Build in Docker:
   script: ./make-packages.sh
   artifacts:
     untracked: false
-    when: on_success
+    when: always
     access: all
     paths:
       - ${CI_PROJECT_DIR}/artifacts
+      - ${CI_PROJECT_DIR}/logs
