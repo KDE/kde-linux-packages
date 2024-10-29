@@ -130,6 +130,8 @@ for target in $allTargets; do
     kdeBuilderArgs=(
         --no-include-dependencies
         --persistent-data-file \$srcdir/kde-builder-persistent-data
+        --ninja-options -DQT_FORCE_ASSERTS
+        --make-options -DQT_FORCE_ASSERTS
         --install-dir /usr
         --source-dir \$srcdir/src
         --build-dir \$srcdir/build
