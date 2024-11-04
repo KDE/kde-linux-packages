@@ -27,6 +27,8 @@ KDE_BUILDER_TARGETS = [
     "kde-inotify-survey",
     "kdeconnect-kde",
     "kdenetwork-filesharing",
+    # Needed by kio-gdrive, even though it's not listed in repo-metadata
+    "kaccounts-providers",
 ]
 
 IGNORE_PROJECTS = [
@@ -67,6 +69,10 @@ def to_bash_array(arr: list[str]) -> str:
 
 
 def build_command(project: str, info: dict) -> list[str]:
+    if not info["options"]:
+        logger.warning(f"No package options for {project}. Assuming cmake build")
+        info["options"] = {"cmake-options": ""}
+
     options = info["options"]
     if "cmake-options" in options:
         return [
@@ -87,6 +93,7 @@ def build_command(project: str, info: dict) -> list[str]:
 
 def package_command(project: str, info: dict) -> str:
     options = info["options"]
+
     if "cmake-options" in options:
         return "cmake --install build"
 
@@ -126,7 +133,7 @@ third_party_projects = [
 ] + FORCE_THIRD_PARTY
 
 # This file will be split up into individual repositories
-dependencies = yaml.safe_load(
+arch_deps_info = yaml.safe_load(
     requests.get(
         "https://invent.kde.org/sysadmin/repo-metadata/-/raw/work/lasath/arch-deps/distro-dependencies/arch.yaml",
         verify=True,
@@ -139,25 +146,24 @@ for project, info in project_infos.items():
     if project in IGNORE_PROJECTS or project in third_party_projects:
         continue
 
-    if project not in dependencies["projects"]:
-        logger.warning(f"Skipping missing project {project}")
-        continue
+    if project not in arch_deps_info["projects"]:
+        raise Exception(f"Missing arch dependencies for {project}")
 
     pkgname = package_name(project)
 
-    deps = dependencies["projects"][project]
-    if not deps:
+    arch_deps = arch_deps_info["projects"][project]
+    if not arch_deps:
         raise Exception(f"Missing dependencies for {project}")
 
     repo: str = info["repository"].replace("kde:", "https://invent.kde.org/")
 
     pkgver = os.getenv("CI_COMMIT_SHA", default="local")
     optdepends = "\n".join(
-        [f'"{dep["dep"]}: {dep["reason"]}"' for dep in deps["optdepends"]]
+        [f'"{dep["dep"]}: {dep["reason"]}"' for dep in arch_deps["optdepends"]]
     )
 
     # append the KDE internal dependencies from project-info
-    depends = deps["depends"] + [
+    depends = arch_deps["depends"] + [
         package_name(kde_dep)
         for kde_dep in info["dependencies"]
         if not kde_dep in IGNORE_PROJECTS
@@ -178,11 +184,11 @@ groups=(kde-linux banana)
 source=("{project}::git+{repo}")
 sha256sums=('SKIP')
 depends=({to_bash_array(depends)})
-makedepends=({to_bash_array(deps["makedepends"])})
+makedepends=({to_bash_array(arch_deps["makedepends"])})
 optdepends=({optdepends})
-provides=({to_bash_array(deps['replaces'])})
-conflicts=({to_bash_array(deps['replaces'])})
-replaces=({to_bash_array(deps['replaces'])})
+provides=({to_bash_array(arch_deps['replaces'])})
+conflicts=({to_bash_array(arch_deps['replaces'])})
+replaces=({to_bash_array(arch_deps['replaces'])})
 
 build() {{
     {";\n    ".join(build_command(project, info))};
