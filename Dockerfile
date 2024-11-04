@@ -20,11 +20,7 @@ RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /e
 # Initialize pacman and install packages
 RUN pacman-key --init && \
     pacman-key --populate && \
-    pacman --sync --refresh --noconfirm \
-        sudo \
-        base-devel ninja \
-        python-yaml python-setproctitle python-requests \
-        git
+    pacman --sync --refresh --noconfirm sudo base-devel python-yaml python-setproctitle git
 
 # Create builder user
 RUN useradd -m -s /bin/bash builder && \
@@ -33,8 +29,6 @@ RUN useradd -m -s /bin/bash builder && \
 # Clone the KDE Builder repository and pin to a specific commit
 # because there are some issues with the latest version
 RUN git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder && \
-    cd /kde-builder && \
-    git checkout work/lasath/info && \
     ln -s /kde-builder/kde-builder /usr/local/bin
 
 # Set up project directory
@@ -50,6 +44,10 @@ WORKDIR $PROJECT_DIR
 RUN curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz && \
     cd paru-bin && \
     makepkg --noconfirm --syncdeps --install
+
+# This should move into the make-packages.sh script when this is resolved:
+# https://invent.kde.org/sysadmin/repo-metadata/-/issues/12
+RUN kde-builder --install-distro-packages --prompt-answer yes
 
 RUN paru -S --noconfirm --needed --skipreview aurutils
 
