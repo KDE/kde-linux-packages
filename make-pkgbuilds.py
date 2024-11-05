@@ -2,6 +2,7 @@
 
 # kde-builder should already be in the path
 import logging.config
+import multiprocessing
 import os
 import subprocess
 import logging
@@ -27,8 +28,11 @@ KDE_BUILDER_TARGETS = [
     "kde-inotify-survey",
     "kdeconnect-kde",
     "kdenetwork-filesharing",
+    # needed by kaccounts-integration
+    "signon-kwallet-extension",
     # Needed by kio-gdrive, even though it's not listed in repo-metadata
     "kaccounts-providers",
+    "phonon-vlc",
 ]
 
 IGNORE_PROJECTS = [
@@ -39,6 +43,11 @@ IGNORE_PROJECTS = [
     # To avoid pacman packages showing up in discover
     "packagekit-qt",
 ]
+
+IGNORE_ARCH_DEPS = {
+    # Package group with only one package in it
+    "phonon-qt6-backend",
+}
 
 FORCE_THIRD_PARTY = [
     # Is not output from kde-builder
@@ -64,7 +73,7 @@ def package_name(project: str):
     return f"kde-banana-{project}-git"
 
 
-def to_bash_array(arr: list[str]) -> str:
+def to_bash_array(arr: list[str] | set[str]) -> str:
     return " ".join([f'"{dep}"' for dep in arr])
 
 
@@ -83,7 +92,7 @@ def build_command(project: str, info: dict) -> list[str]:
                     options["cmake-options"],
                 ]
             ),
-            "cmake --build build",
+            f"cmake --build build --parallel {multiprocessing.cpu_count() + 1}",
         ]
 
     # Turns out KDE uses cmake for everything.
@@ -163,7 +172,7 @@ for project, info in project_infos.items():
     )
 
     # append the KDE internal dependencies from project-info
-    depends = arch_deps["depends"] + [
+    depends = [ad for ad in arch_deps["depends"] if ad not in IGNORE_ARCH_DEPS] + [
         package_name(kde_dep)
         for kde_dep in info["dependencies"]
         if not kde_dep in IGNORE_PROJECTS

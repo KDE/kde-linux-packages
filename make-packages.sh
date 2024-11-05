@@ -32,7 +32,7 @@ Path = $pkgbuildsDir
 EOF
 
 # Paru will build an install the packages in the correct order
-yes | paru --sync --needed $packages
+paru --sync --needed --noconfirm $packages
 
 #### Create arch repositories to be published as artifacts
 
@@ -42,11 +42,11 @@ bananaDebugDir=$artifactsDir/banana-debug
 
 # Move the debug packages first so regular packages are easier to find
 mkdir -p $bananaDebugDir
-mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
+ln -f $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
 repo-add $bananaDebugDir/banana-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
 
 mkdir -p $bananaDir
-ln $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
+ln -f $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
 repo-add $bananaDir/banana.db.tar.gz $bananaDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
