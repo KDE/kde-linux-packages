@@ -20,7 +20,9 @@ RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /e
 # Initialize pacman and install packages
 RUN pacman-key --init && \
     pacman-key --populate && \
-    pacman --sync --refresh --noconfirm sudo base-devel python-yaml python-setproctitle git
+    pacman --sync --refresh --noconfirm \
+        sudo base-devel git \
+        python-yaml python-setproctitle python-requests python-srcinfo
 
 # Create builder user
 RUN useradd -m -s /bin/bash builder && \
