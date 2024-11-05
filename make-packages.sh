@@ -19,7 +19,7 @@ packages=$(basename -a $pkgbuildsDir/kde-banana-*)
 alreadyBuiltPackages="$(find $pkgbuildsDir -name '*.pkg.tar.zst' | grep -v -- '-git-debug-' || true)"
 echo "Reusing already built packages: $alreadyBuiltPackages"
 if [ -n "$alreadyBuiltPackages" ]; then
-    yes | sudo pacman -U $alreadyBuiltPackages
+    sudo pacman --upgrade --noconfirm $alreadyBuiltPackages
 fi
 
 # Right now this creates a local version of the AUR with the packages we created.
