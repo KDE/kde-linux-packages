@@ -28,10 +28,6 @@ KDE_BUILDER_TARGETS = [
     "kde-inotify-survey",
     "kdeconnect-kde",
     "kdenetwork-filesharing",
-    # needed by kaccounts-integration
-    "signon-kwallet-extension",
-    # Needed by kio-gdrive, even though it's not listed in repo-metadata
-    "kaccounts-providers",
     "phonon-vlc",
 ]
 
@@ -148,6 +144,7 @@ arch_deps_info = yaml.safe_load(
         verify=True,
     ).content
 )
+arch_projects = arch_deps_info["projects"]
 
 jobs: list[tuple[subprocess.Popen, str]] = []
 
@@ -155,12 +152,12 @@ for project, info in project_infos.items():
     if project in IGNORE_PROJECTS or project in third_party_projects:
         continue
 
-    if project not in arch_deps_info["projects"]:
+    if project not in arch_projects:
         raise Exception(f"Missing arch dependencies for {project}")
 
     pkgname = package_name(project)
 
-    arch_deps = arch_deps_info["projects"][project]
+    arch_deps = arch_projects[project]
     if not arch_deps:
         raise Exception(f"Missing dependencies for {project}")
 
@@ -171,12 +168,17 @@ for project, info in project_infos.items():
         [f'"{dep["dep"]}: {dep["reason"]}"' for dep in arch_deps["optdepends"]]
     )
 
+    depends = [ad for ad in arch_deps["depends"] if ad not in IGNORE_ARCH_DEPS]
     # append the KDE internal dependencies from project-info
-    depends = [ad for ad in arch_deps["depends"] if ad not in IGNORE_ARCH_DEPS] + [
-        package_name(kde_dep)
-        for kde_dep in info["dependencies"]
-        if not kde_dep in IGNORE_PROJECTS
-    ]
+    for kde_dep in info["dependencies"]:
+        if kde_dep in IGNORE_PROJECTS:
+            continue
+
+        if kde_dep in third_party_projects and kde_dep in arch_projects:
+            for replace in arch_projects[kde_dep]["replaces"]:
+                depends.append(replace)
+        else:
+            depends.append(package_name(kde_dep))
 
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
