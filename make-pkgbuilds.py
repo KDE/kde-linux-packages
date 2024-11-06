@@ -49,6 +49,8 @@ IGNORE_ARCH_DEPS = {
     "phonon-qt6-backend",
 }
 
+VIRTUAL_PACKAGES = {"kwallet": ["org.freedesktop.secrets"]}
+
 FORCE_THIRD_PARTY = [
     # Is not output from kde-builder
     # TODO: investigate issue in repo-metadata
@@ -56,9 +58,7 @@ FORCE_THIRD_PARTY = [
     "zxing-cpp",
 ]
 
-EXTRA_CMAKE_OPTIONS = (
-    "-G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_BUILD_TYPE=RelWithDebInfo"
-)
+EXTRA_CMAKE_OPTIONS = "-G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo"
 
 CI_PROJECT_DIR = os.getenv("CI_PROJECT_DIR", default=".")
 PKGBUILDS_DIR = os.getenv("PKGBUILDS_DIR", default=f"{CI_PROJECT_DIR}/pkgbuilds")
@@ -195,7 +195,7 @@ sha256sums=('SKIP')
 depends=({to_bash_array(depends)})
 makedepends=({to_bash_array(arch_deps["makedepends"])})
 optdepends=({optdepends})
-provides=({to_bash_array(arch_deps['replaces'])})
+provides=({to_bash_array(arch_deps['replaces'] + VIRTUAL_PACKAGES.get(project, []))})
 conflicts=({to_bash_array(arch_deps['replaces'])})
 replaces=({to_bash_array(arch_deps['replaces'])})
 
