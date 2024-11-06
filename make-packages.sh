@@ -6,6 +6,12 @@ set -xe
 
 env
 
+AUR_TARGETS=(
+    snapd
+    steam-devices-git
+    systemd-bootchart
+)
+
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
 
 PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py
