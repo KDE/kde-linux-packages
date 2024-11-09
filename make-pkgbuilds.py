@@ -54,7 +54,16 @@ FORCE_THIRD_PARTY = [
     "zxing-cpp",
 ]
 
-EXTRA_CMAKE_OPTIONS = "-G Ninja -DCMAKE_INSTALL_PREFIX=/usr -DBUILD_TESTING=OFF -DCMAKE_INSTALL_LIBEXECDIR=lib -DWITH_PYTHON_VENDORING=OFF -DCMAKE_BUILD_TYPE=RelWithDebInfo"
+EXTRA_CMAKE_OPTIONS = [
+    "-G Ninja",
+    "-DCMAKE_INSTALL_PREFIX=/usr",
+    "-DBUILD_TESTING=OFF",
+    "-DCMAKE_INSTALL_LIBEXECDIR=lib",
+    "-DWITH_PYTHON_VENDORING=OFF",
+    "-DCMAKE_CXX_FLAGS=-DQT_FORCE_ASSERTS",
+    "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+]
+
 
 CI_PROJECT_DIR = os.getenv("CI_PROJECT_DIR", default=".")
 PKGBUILDS_DIR = os.getenv("PKGBUILDS_DIR", default=f"{CI_PROJECT_DIR}/pkgbuilds")
@@ -81,10 +90,10 @@ def build_command(project: str, info: dict) -> list[str]:
     options = info["options"]
     if "cmake-options" in options:
         return [
-            " ".join(
+            " \\\n\t\t".join(
                 [
                     f'cmake -B build -S "{project}"',
-                    EXTRA_CMAKE_OPTIONS,
+                    *EXTRA_CMAKE_OPTIONS,
                     options["cmake-options"],
                 ]
             ),
