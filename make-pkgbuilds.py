@@ -61,6 +61,11 @@ EXTRA_CMAKE_OPTIONS = [
     "-DCMAKE_INSTALL_LIBEXECDIR=lib",
     "-DWITH_PYTHON_VENDORING=OFF",
     "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+    # CMake 3.31 added new warnings that get triggered a lot with
+    # our Extra CMake Modules. Suppress them to avoid exceeding the
+    # log size limit.
+    # https://cmake.org/cmake/help/latest/policy/CMP0175.html
+    "-Wno-dev"
 ]
 
 
