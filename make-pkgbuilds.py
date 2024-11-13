@@ -146,12 +146,15 @@ third_party_projects = [
 ] + FORCE_THIRD_PARTY
 
 # This file will be split up into individual repositories
-arch_deps_info = yaml.safe_load(
-    requests.get(
-        "https://invent.kde.org/sysadmin/repo-metadata/-/raw/work/lasath/arch-deps/distro-dependencies/arch.yaml",
-        verify=True,
-    ).content
-)
+arch_deps_info = {}
+with open(
+    os.path.expanduser(
+        "~/.local/state/sysadmin-repo-metadata/distro-dependencies/arch.yaml"
+    ),
+    "r",
+) as f:
+    arch_deps_info = yaml.safe_load(f)
+
 arch_projects = arch_deps_info["projects"]
 
 jobs: list[tuple[subprocess.Popen, str]] = []
