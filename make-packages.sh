@@ -10,6 +10,15 @@ AUR_TARGETS=(
     snapd
     steam-devices-git
     systemd-bootchart
+
+    calamares-git
+
+    # Systemd with SysupdateD enabled at build-time
+    'sysupdated-systemd-git'
+    'sysupdated-systemd-libs-git'
+    'sysupdated-systemd-resolvconf-git'
+    'sysupdated-systemd-sysvcompat-git'
+    'sysupdated-systemd-ukify-git'
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
