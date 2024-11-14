@@ -13,12 +13,12 @@ AUR_TARGETS=(
 
     calamares-git
 
-    # Systemd with SysupdateD enabled at build-time
-    'sysupdated-systemd-git'
-    'sysupdated-systemd-libs-git'
-    'sysupdated-systemd-resolvconf-git'
-    'sysupdated-systemd-sysvcompat-git'
-    'sysupdated-systemd-ukify-git'
+    # We need latest systemd for sysupdated
+    'systemd-git'
+    'systemd-libs-git'
+    'systemd-resolvconf-git'
+    'systemd-sysvcompat-git'
+    'systemd-ukify-git'
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
@@ -57,11 +57,11 @@ bananaDebugDir=$artifactsDir/banana-debug
 
 # Move the debug packages first so regular packages are easier to find
 mkdir -p $bananaDebugDir
-mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
+ln -f $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
 repo-add $bananaDebugDir/banana-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
 
 mkdir -p $bananaDir
-mv $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
+ln -f $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
 repo-add $bananaDir/banana.db.tar.gz $bananaDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
