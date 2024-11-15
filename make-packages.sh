@@ -6,6 +6,10 @@ set -xe
 
 env
 
+# Since the docker imge does not get rebuilt on every run, 
+# some packges may be out of date.
+sudo pacman --sync --refresh --sysupgrade --noconfirm 
+
 AUR_TARGETS=(
     snapd
     steam-devices-git
