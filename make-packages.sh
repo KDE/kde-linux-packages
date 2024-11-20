@@ -17,12 +17,8 @@ AUR_TARGETS=(
 
     calamares-git
 
-    # We need latest systemd for sysupdated
-    'systemd-git'
-    'systemd-libs-git'
-    'systemd-resolvconf-git'
-    'systemd-sysvcompat-git'
-    'systemd-ukify-git'
+    paru-bin
+    visual-studio-code-bin
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
