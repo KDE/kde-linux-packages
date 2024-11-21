@@ -21,7 +21,7 @@ RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /e
 RUN pacman-key --init && \
     pacman-key --populate && \
     pacman --sync --refresh --noconfirm \
-        sudo base-devel git ninja \
+        sudo base-devel git ninja rsync openssh \
         python-yaml python-setproctitle python-requests python-srcinfo
 
 # Create builder user
