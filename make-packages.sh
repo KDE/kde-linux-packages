@@ -66,7 +66,7 @@ repo-add $bananaDir/kde-linux.db.tar.gz $bananaDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
 sudo tee -a /etc/pacman.conf <<- EOF
-[banana]
+[kde-linux]
 SigLevel = Never
 Server = file://$bananaDir
 EOF
