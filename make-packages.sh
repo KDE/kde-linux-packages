@@ -42,7 +42,7 @@ fi
 # can also benefit from well maintained KDE git packages.
 mkdir -p $HOME/.config/paru
 cat <<- EOF >> $HOME/.config/paru/paru.conf
-[banana]
+[kde-linux]
 Path = $pkgbuildsDir
 EOF
 
@@ -52,17 +52,17 @@ paru --sync --needed --noconfirm $packages
 #### Create arch repositories to be published as artifacts
 
 artifactsDir=$CI_PROJECT_DIR/artifacts
-bananaDir=$artifactsDir/banana
-bananaDebugDir=$artifactsDir/banana-debug
+bananaDir=$artifactsDir/packages
+bananaDebugDir=$artifactsDir/packages-debug
 
 # Move the debug packages first so regular packages are easier to find
 mkdir -p $bananaDebugDir
-ln -f $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
-repo-add $bananaDebugDir/banana-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
+mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
+repo-add $bananaDebugDir/kde-linux-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
 
 mkdir -p $bananaDir
-ln -f $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
-repo-add $bananaDir/banana.db.tar.gz $bananaDir/*.pkg.tar.zst
+mv $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
+repo-add $bananaDir/kde-linux.db.tar.gz $bananaDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
 sudo tee -a /etc/pacman.conf <<- EOF
@@ -75,7 +75,14 @@ sudo pacman --sync --refresh
 # This fetches from AUR, builds and adds to our repo in one command :D
 aur sync --no-view --no-confirm --database banana "${AUR_TARGETS[@]}"
 
-# Gitlab artifacts does not seem to like symlinks so we make copies
-find $artifactsDir -type l | while read file; do
-    cp --remove-destination "$(dirname $file)/$(readlink $file)" $file
-done
+# $CDN_UPLOAD_KEY is only available for protected branches
+if [ -z "$CDN_UPLOAD_KEY" ]; then
+    echo "No CDN_UPLOAD_KEY found, skipping upload"
+    exit 0
+fi
+
+CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
+
+rsync --archive --verbose --compress \
+    --rsh="ssh -i $CDN_UPLOAD_KEY" \
+    $artifactsDir/ $CDN_UPLOAD_URL
