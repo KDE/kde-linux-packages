@@ -52,28 +52,28 @@ paru --sync --needed --noconfirm $packages
 #### Create arch repositories to be published as artifacts
 
 artifactsDir=$CI_PROJECT_DIR/artifacts
-bananaDir=$artifactsDir/packages
-bananaDebugDir=$artifactsDir/packages-debug
+packagesDir=$artifactsDir/packages
+packagesDebugDir=$artifactsDir/packages-debug
 
 # Move the debug packages first so regular packages are easier to find
-mkdir -p $bananaDebugDir
-mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $bananaDebugDir
-repo-add $bananaDebugDir/kde-linux-debug.db.tar.gz $bananaDebugDir/*.pkg.tar.zst
+mkdir -p $packagesDebugDir
+mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $packagesDebugDir
+repo-add $packagesDebugDir/kde-linux-debug.db.tar.gz $packagesDebugDir/*.pkg.tar.zst
 
-mkdir -p $bananaDir
-mv $pkgbuildsDir/*/*.pkg.tar.zst $bananaDir
-repo-add $bananaDir/kde-linux.db.tar.gz $bananaDir/*.pkg.tar.zst
+mkdir -p $packagesDir
+mv $pkgbuildsDir/*/*.pkg.tar.zst $packagesDir
+repo-add $packagesDir/kde-linux.db.tar.gz $packagesDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
 sudo tee -a /etc/pacman.conf <<- EOF
 [kde-linux]
 SigLevel = Never
-Server = file://$bananaDir
+Server = file://$packagesDir
 EOF
 sudo pacman --sync --refresh
 
 # This fetches from AUR, builds and adds to our repo in one command :D
-aur sync --no-view --no-confirm --database banana "${AUR_TARGETS[@]}"
+aur sync --no-view --no-confirm --database kde-linux "${AUR_TARGETS[@]}"
 
 # $CDN_UPLOAD_KEY is only available for protected branches
 if [ -z "$CDN_UPLOAD_KEY" ]; then
