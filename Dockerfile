@@ -31,8 +31,6 @@ RUN useradd -m -s /bin/bash builder && \
 # Clone the KDE Builder repository and pin to a specific commit
 # because there are some issues with the latest version
 RUN git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder && \
-    cd /kde-builder && \
-    git checkout work/lasath/info && \
     ln -s /kde-builder/kde-builder /usr/local/bin
 
 # Set up project directory
