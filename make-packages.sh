@@ -17,8 +17,10 @@ AUR_TARGETS=(
 
     calamares-git
 
+    # Useful for distrobox/devcontainers
     paru-bin
     visual-studio-code-bin
+    kde-builder-git
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
