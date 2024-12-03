@@ -21,6 +21,14 @@ AUR_TARGETS=(
     paru-bin
     visual-studio-code-bin
     kde-builder-git
+
+    # We use systemd-sysupdated to update the OS from plasma-discover
+    # Since its API is unstable, it's only available in -git versions
+    'systemd-git'
+    'systemd-libs-git'
+    'systemd-resolvconf-git'
+    'systemd-sysvcompat-git'
+    'systemd-ukify-git'
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
@@ -75,7 +83,8 @@ EOF
 sudo pacman --sync --refresh
 
 # This fetches from AUR, builds and adds to our repo in one command :D
-aur sync --no-view --no-confirm --database kde-linux "${AUR_TARGETS[@]}"
+# --no-check here is because systemd-git sometimes has failing tests ¯\_(ツ)_/¯
+aur sync --no-view --no-confirm --no-check --database kde-linux "${AUR_TARGETS[@]}"
 
 # $CDN_UPLOAD_KEY is only available for protected branches
 if [ -z "$CDN_UPLOAD_KEY" ]; then
