@@ -6,13 +6,31 @@
 
 set -ex
 
-docker build --build-arg PROJECT_DIR=/work/src -t banana-builder .
+CONTAINER_RUNTIME="docker"
+PODMAN_RUN_OPT=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --podman)
+            CONTAINER_RUNTIME="podman"
+            PODMAN_RUN_OPT="--userns=keep-id"
+            # podman doesn't create mount points automatically
+            mkdir -p "$(pwd)/pacman-cache"
+            shift
+            ;;
+        *)
+            break
+            ;;
+    esac
+done
+
+$CONTAINER_RUNTIME build --build-arg PROJECT_DIR=/work/src -t banana-builder .
 
 # Build inside docker
-docker run -it \
+$CONTAINER_RUNTIME run -it \
   --volume "$(pwd):/work/src" \
   --volume "$(pwd)/pacman-cache:/var/cache/pacman/pkg" \
   --env CI_PROJECT_DIR=/work/src \
   --workdir /work/src \
   --rm=true \
+  ${PODMAN_RUN_OPT} \
   banana-builder "$@"
