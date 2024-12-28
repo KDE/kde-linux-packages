@@ -29,6 +29,7 @@ KDE_BUILDER_TARGETS = [
     "kde-inotify-survey",
     "kdeconnect-kde",
     "kdenetwork-filesharing",
+    "kwalletmanager",
     "phonon-vlc",
 ]
 
