@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 # kde-builder should already be in the path
+import datetime
 import logging.config
 import multiprocessing
 import os
@@ -164,6 +165,8 @@ arch_projects = arch_deps_info["projects"]
 
 jobs: list[tuple[subprocess.Popen, str]] = []
 
+build_time: str = datetime.datetime.now().strftime("%Y%m%d%H%M")
+
 for project, info in project_infos.items():
     if project in IGNORE_PROJECTS or project in third_party_projects:
         continue
@@ -179,7 +182,6 @@ for project, info in project_infos.items():
 
     repo: str = info["repository"].replace("kde:", "https://invent.kde.org/")
 
-    pkgver = os.getenv("CI_COMMIT_SHA", default="local")
     optdepends = "\n".join(
         [f'"{dep["dep"]}: {dep["reason"]}"' for dep in arch_deps["optdepends"]]
     )
@@ -201,7 +203,7 @@ for project, info in project_infos.items():
 
 pkgbase={package_name(project)}
 pkgname=({pkgname})
-pkgver={pkgver}
+pkgver=0
 pkgrel=1
 url="https://community.kde.org/KDE_Linux"
 pkgdesc="Build of {project} for KDE Linux"
@@ -216,6 +218,14 @@ optdepends=({optdepends})
 provides=({to_bash_array(arch_deps['replaces'] + VIRTUAL_PACKAGES.get(project, []))})
 conflicts=({to_bash_array(arch_deps['replaces'])})
 replaces=({to_bash_array(arch_deps['replaces'])})
+
+pkgver() {{
+  cd "{project}"
+  ( set -o pipefail
+    git describe --long --abbrev=7 2>/dev/null | sed 's/-/./g;s/\\(g[a-z0-9]\\{{7\\}}\\)$/r{build_time}.\\1/;s|.*/||' ||
+    printf "%s.r{build_time}-%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+  )
+}}
 
 build() {{
     {";\n    ".join(build_command(project, info))};
