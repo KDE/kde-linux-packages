@@ -35,8 +35,11 @@ KDE_BUILDER_TARGETS = [
 IGNORE_PROJECTS = [
     # Testing only
     "selenium-webdriver-at-spi",
+
     # Not sure why this is needed to begin with
     "plasma-nano",
+    "union",
+
     # To avoid pacman packages showing up in discover
     "packagekit-qt",
 ]
