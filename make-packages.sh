@@ -15,8 +15,6 @@ AUR_TARGETS=(
     steam-devices-git
     systemd-bootchart
 
-    calamares-git
-
     # Useful for distrobox/devcontainers
     paru-bin
     visual-studio-code-bin
