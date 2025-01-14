@@ -14,6 +14,7 @@ AUR_TARGETS=(
     snapd
     steam-devices-git
     systemd-bootchart
+    waydroid
 
     # Useful for distrobox/devcontainers
     paru-bin
