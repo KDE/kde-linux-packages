@@ -24,7 +24,6 @@ KDE_BUILDER_TARGETS = [
     "kio-gdrive",
     "kpmcore",
     "spectacle",
-    "xwaylandvideobridge",
     "partitionmanager",
     "kde-inotify-survey",
     "kdeconnect-kde",
