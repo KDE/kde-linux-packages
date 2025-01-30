@@ -39,6 +39,7 @@ IGNORE_PROJECTS = [
     # Not sure why this is needed to begin with
     "plasma-nano",
     "union",
+    "qvk",
 
     # To avoid pacman packages showing up in discover
     "packagekit-qt",
