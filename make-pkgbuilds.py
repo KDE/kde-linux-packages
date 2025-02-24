@@ -227,7 +227,7 @@ pkgver() {{
   cd "{project}"
   ( set -o pipefail
     git describe --long --abbrev=7 2>/dev/null | sed 's/-/./g;s/\\(g[a-z0-9]\\{{7\\}}\\)$/r{build_time}.\\1/;s|.*/||' ||
-    printf "%s.r{build_time}-%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
+    printf "%s.r{build_time}.%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short=7 HEAD)"
   )
 }}
 
