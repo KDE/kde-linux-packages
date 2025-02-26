@@ -15,7 +15,7 @@ RUN sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /
     sed -i 's/NoProgressBar//' /etc/pacman.conf
 
 # Set up mirrorlist
-RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+RUN echo "Server = https://archive.archlinux.org/repos/$(date -d '1 day ago' +%Y)/$(date -d '1 day ago' +%m)/$(date -d '1 day ago' +%d)/\$repo/os/\$arch" >> /etc/pacman.d/mirrorlist
 
 # Initialize pacman and install packages
 RUN pacman-key --init && \
