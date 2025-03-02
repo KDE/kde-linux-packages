@@ -43,6 +43,9 @@ IGNORE_PROJECTS = [
 
     # To avoid pacman packages showing up in discover
     "packagekit-qt",
+
+    # KDE Linux plans on using new technologies when possible
+    "kwin-x11",
 ]
 
 IGNORE_ARCH_DEPS = {
