@@ -14,22 +14,22 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
-    "pulseaudio-qt",
-    "workspace",
     "dolphin-plugins",
     "ffmpegthumbs",
+    "kde-inotify-survey",
+    "kdeconnect-kde",
     "kdegraphics-thumbnailers",
+    "kdenetwork-filesharing",
     "kimageformats",
     "kio-fuse",
     "kio-gdrive",
     "kpmcore",
-    "spectacle",
-    "partitionmanager",
-    "kde-inotify-survey",
-    "kdeconnect-kde",
-    "kdenetwork-filesharing",
     "kwalletmanager",
+    "partitionmanager",
     "phonon-vlc",
+    "pulseaudio-qt",
+    "spectacle",
+    "workspace",
 ]
 
 IGNORE_PROJECTS = [
