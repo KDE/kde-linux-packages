@@ -73,7 +73,9 @@ EXTRA_CMAKE_OPTIONS = [
     # our Extra CMake Modules. Suppress them to avoid exceeding the
     # log size limit.
     # https://cmake.org/cmake/help/latest/policy/CMP0175.html
-    "-Wno-dev"
+    "-Wno-dev",
+    # Build the KDE-Linux backend of Discover
+    "-DBUILD_SystemdSysupdateBackend=ON"
 ]
 
 
