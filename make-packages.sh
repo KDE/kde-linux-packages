@@ -16,6 +16,9 @@ AUR_TARGETS=(
     systemd-bootchart
     waydroid
 
+    # includes `git mr` which is mentioned in our dev docs
+    git-extras
+
     # Useful for distrobox/devcontainers
     paru-bin
     visual-studio-code-bin
