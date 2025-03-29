@@ -14,38 +14,31 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
-    "pulseaudio-qt",
-    "workspace",
     "dolphin-plugins",
     "ffmpegthumbs",
+    "kdeconnect-kde",
     "kdegraphics-thumbnailers",
+    "kde-inotify-survey",
+    "kdenetwork-filesharing",
     "kimageformats",
     "kio-fuse",
     "kio-gdrive",
     "kpmcore",
-    "spectacle",
-    "partitionmanager",
-    "kde-inotify-survey",
-    "kdeconnect-kde",
-    "kdenetwork-filesharing",
     "kwalletmanager",
+    "partitionmanager",
     "phonon-vlc",
+    "pulseaudio-qt",
+    "spectacle",
+    "workspace",
 ]
 
 IGNORE_PROJECTS = [
-    # Testing only
-    "selenium-webdriver-at-spi",
-
-    # Not sure why this is needed to begin with
-    "plasma-nano",
-    "union",
-    "plasma-keyboard",
-
-    # To avoid pacman packages showing up in discover
-    "packagekit-qt",
-
-    # KDE Linux plans on using new technologies when possible
-    "kwin-x11",
+    "kwin-x11", # KDE Linux plans on using new technologies when possible
+    "packagekit-qt", # To avoid pacman packages showing up in discover
+    "plasma-keyboard", # Still under construction; not ready for use yet
+    "plasma-nano", # Not sure why this is needed to begin with
+    "selenium-webdriver-at-spi", # Testing only
+    "union", # Still under construction; not ready for use yet
 ]
 
 IGNORE_ARCH_DEPS = {
