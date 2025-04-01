@@ -24,6 +24,7 @@ KDE_BUILDER_TARGETS = [
     "kio-fuse",
     "kio-gdrive",
     "kpmcore",
+    "kunifiedpush",
     "kwalletmanager",
     "partitionmanager",
     "phonon-vlc",
