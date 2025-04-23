@@ -11,6 +11,9 @@ env
 sudo pacman --sync --refresh --sysupgrade --noconfirm 
 
 AUR_TARGETS=(
+    # Limits USB writeback cache for safer and faster ejection.
+    usb-dirty-pages-udev
+    
     snapd
     steam-devices-git
     systemd-bootchart
