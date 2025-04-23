@@ -139,6 +139,50 @@ def run_kde_builder(args):
 
     return process.stdout
 
+def extra_kde_packages() -> dict:
+    plasma_login_manager = {
+        'project_infos' : {
+            'plasma-login-manager': {
+                'branch': None,
+                'build': True,
+                'dependencies': [
+                    'extra-cmake-modules',
+                    'kconfig',
+                    'kpackage',
+                    'kwindowsystem',
+                    'ki18n',
+                    'kdbusaddons',
+                    'kcmutils',
+                    'kauth',
+                    'kio',
+                    'layer-shell-qt',
+                    'plasma-workspace'
+                ],
+                'options': {
+                    'cmake-options': ''
+                },
+                'path': 'kde/workspace/plasma-login-manager',
+                'phases': [
+                    'update',
+                    'build',
+                    'install'
+                ],
+                'repository': 'kde:davidedmundson/plasma-login-manager.git'
+            }
+        },
+        'arch_projects': {
+            'plasma-login-manager': {
+                'depends': ['qt6-declarative'],
+                'makedepends': [],
+                'optdepends': [],
+                'replaces': ['plasma-login-manager']
+            }
+        }
+    }
+    return plasma_login_manager
+
+
+
 
 # initialize kde-builder
 run_kde_builder(["--generate-config"])
@@ -147,6 +191,8 @@ run_kde_builder(["--metadata-only"])
 # get project info from kde-builder
 result = run_kde_builder(["--query", "project-info"] + KDE_BUILDER_TARGETS)
 project_infos = yaml.safe_load(result)
+extra_pkgs = extra_kde_packages()
+project_infos.update(extra_pkgs["project_infos"])
 
 third_party_projects = [
     project
@@ -165,6 +211,7 @@ with open(
     arch_deps_info = yaml.safe_load(f)
 
 arch_projects = arch_deps_info["projects"]
+arch_projects.update(extra_pkgs["arch_projects"])
 
 jobs: list[tuple[subprocess.Popen, str]] = []
 
