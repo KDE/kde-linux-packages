@@ -167,7 +167,7 @@ def extra_kde_packages() -> dict:
                     'build',
                     'install'
                 ],
-                'repository': 'kde:davidedmundson/plasma-login-manager.git'
+                'repository': 'kde:plasma/plasma-login-manager.git'
             }
         },
         'arch_projects': {
