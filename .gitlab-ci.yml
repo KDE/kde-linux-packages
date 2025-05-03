@@ -4,7 +4,7 @@
 Build Docker Image:
   stage: .pre
   tags:
-    - x86_64
+    - kde-linux-x86_64
   image:
     name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
@@ -21,7 +21,7 @@ Build Docker Image:
 Build in Docker:
   stage: build
   tags:
-    - x86_64
+    - kde-linux-x86_64
   image: ${CI_REGISTRY_IMAGE}:latest
   script: ./make-packages.sh
   artifacts:
