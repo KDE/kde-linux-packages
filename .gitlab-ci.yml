@@ -1,5 +1,14 @@
 # SPDX-License-Identifier: BSD-2-Clause
 # SPDX-FileCopyrightText: None
+Set Snapshot Date:
+  stage: .pre
+  image: archlinux:latest
+  script:
+    - mkdir -p ${CI_PROJECT_DIR}/artifacts
+    - echo "$(date -u -d 'yesterday' +%Y/%m/%d)" > ${CI_PROJECT_DIR}/artifacts/build_date.txt
+  artifacts:
+    paths:
+      - ${CI_PROJECT_DIR}/artifacts/build_date.txt
 
 Build Docker Image:
   stage: .pre
@@ -9,15 +18,16 @@ Build Docker Image:
     name: gcr.io/kaniko-project/executor:v1.23.2-debug
     entrypoint: [""]
   script:
+    - BUILD_DATE=$(cat "${CI_PROJECT_DIR}/artifacts/build_date.txt")
     - /kaniko/executor
-      --context "${CI_PROJECT_DIR}"
-      --build-arg "PROJECT_DIR=${CI_PROJECT_DIR}"
-      --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}:latest"
-  # only run this if the Dockerfile has changed
+        --context "${CI_PROJECT_DIR}"
+        --build-arg "PROJECT_DIR=${CI_PROJECT_DIR}"
+        --build-arg "BUILD_DATE=${BUILD_DATE}"
+        --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
+        --destination "${CI_REGISTRY_IMAGE}:latest"
   rules:
     - changes:
-        - Dockerfile
+      - Dockerfile
 
 Build in Docker:
   stage: build

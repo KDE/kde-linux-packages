@@ -6,6 +6,7 @@ FROM archlinux:latest
 # Set environment variables
 ARG PROJECT_DIR
 ARG PARALLELL_DOWNLOADS=50
+ARG BUILD_DATE
 
 # Copy the .env file if needed
 # COPY .env $PROJECT_DIR/.env
@@ -15,7 +16,8 @@ RUN sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /
     sed -i 's/NoProgressBar//' /etc/pacman.conf
 
 # Set up mirrorlist
-RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+ENV BUILD_DATE=$BUILD_DATE
+RUN echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 # Initialize pacman and install packages
 RUN pacman-key --init && \
