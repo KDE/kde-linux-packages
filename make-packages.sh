@@ -12,7 +12,8 @@ echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arc
 
 # Since the docker image does not get rebuilt on every run,
 # some packages may be out of date.
-sudo pacman --sync --refresh --sysupgrade --noconfirm
+# NOTE: refresh twice forces a refresh, this is to prevent cache timing confusions causing random 404 errors
+sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 
 AUR_TARGETS=(
     # Limits USB writeback cache for safer and faster ejection.
