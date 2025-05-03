@@ -8,12 +8,12 @@ env
 
 # Since the docker image does not get rebuilt on every run,
 # some packges may be out of date.
-sudo pacman --sync --refresh --sysupgrade --noconfirm 
+sudo pacman --sync --refresh --sysupgrade --noconfirm
 
 AUR_TARGETS=(
     # Limits USB writeback cache for safer and faster ejection.
     usb-dirty-pages-udev
-    
+
     snapd
     steam-devices-git
     systemd-bootchart
