@@ -11,7 +11,7 @@ echo "$BUILD_DATE" > "artifacts/build_date.txt"
 echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch"| sudo tee /etc/pacman.d/mirrorlist
 
 # Since the docker image does not get rebuilt on every run,
-# some packges may be out of date.
+# some packages may be out of date.
 sudo pacman --sync --refresh --sysupgrade --noconfirm
 
 AUR_TARGETS=(
