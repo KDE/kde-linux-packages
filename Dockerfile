@@ -15,9 +15,7 @@ ARG BUILD_DATE
 RUN sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /etc/pacman.conf && \
     sed -i 's/NoProgressBar//' /etc/pacman.conf
 
-# Set up mirrorlist
-ENV BUILD_DATE=$BUILD_DATE
-RUN echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
 
 # Initialize pacman and install packages
 RUN pacman-key --init && \

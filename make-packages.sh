@@ -4,7 +4,11 @@
 
 set -xe
 
-env
+# Set up mirrorlist.
+BUILD_DATE=$(date -u -d 'yesterday' +%Y/%m/%d)
+[ -d artifacts ] || mkdir artifacts
+echo "$BUILD_DATE" > "artifacts/build_date.txt"
+echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch"| sudo tee /etc/pacman.d/mirrorlist
 
 # Since the docker image does not get rebuilt on every run,
 # some packges may be out of date.
