@@ -17,7 +17,6 @@ AUR_TARGETS=(
     snapd
     steam-devices-git
     systemd-bootchart
-    waydroid
 
     # includes `git mr` which is mentioned in our dev docs
     git-extras
