@@ -21,7 +21,6 @@ KDE_BUILDER_TARGETS = [
     "kde-inotify-survey",
     "kdenetwork-filesharing",
     "kimageformats",
-    "kio-fuse",
     "kio-gdrive",
     "kpmcore",
     "kunifiedpush",
