@@ -34,6 +34,7 @@ KDE_BUILDER_TARGETS = [
 ]
 
 IGNORE_PROJECTS = [
+    "dolphin", # Gets pulled in from dolphin-plugins, but we only need those for Plasma, and we want apps to be from Flatpak where possible
     "kwin-x11", # KDE Linux plans on using new technologies when possible
     "packagekit-qt", # To avoid pacman packages showing up in discover
     "plasma-keyboard", # Still under construction; not ready for use yet
