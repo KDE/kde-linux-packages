@@ -62,6 +62,7 @@ EXTRA_CMAKE_OPTIONS = [
     "-DBUILD_TESTING=OFF",
     "-DCMAKE_INSTALL_LIBEXECDIR=lib",
     "-DWITH_PYTHON_VENDORING=OFF",
+    "-DBUILD_PYTHON_BINDINGS=OFF",
     "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
     # CMake 3.31 added new warnings that get triggered a lot with
     # our Extra CMake Modules. Suppress them to avoid exceeding the
