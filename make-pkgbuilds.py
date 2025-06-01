@@ -34,14 +34,20 @@ KDE_BUILDER_TARGETS = [
 ]
 
 IGNORE_PROJECTS = [
+    "kgamma", # X11-only and we only ship Wayland
     "kwin-x11", # KDE Linux plans on using new technologies when possible
     "packagekit-qt", # To avoid pacman packages showing up in discover
+    "oxygen", # KDE Linux is about the future; this old theme is the past
+    "oxygen-icons", # KDE Linux is about the future; this old theme is the past
+    "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
     "plasma-keyboard", # Still under construction; not ready for use yet
     "plasma-nano", # Not sure why this is needed to begin with
     "selenium-webdriver-at-spi", # Testing only
     "union", # Still under construction; not ready for use yet
     "knighttime", # Still Alpha and hasn't gone through kdereview yet
     "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
+    "qqc2-breeze-style", # Mobile-only; not needed for desktop UX
+    "wacomtablet", # X11-only and we only ship Wayland
 ]
 
 IGNORE_ARCH_DEPS = {
