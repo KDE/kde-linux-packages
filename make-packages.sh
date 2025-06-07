@@ -16,6 +16,9 @@ echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arc
 sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 
 AUR_TARGETS=(
+    # TTY Screenreader
+    fenrir-git
+
     # Limits USB writeback cache for safer and faster ejection.
     usb-dirty-pages-udev
 
