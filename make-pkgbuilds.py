@@ -46,7 +46,6 @@ IGNORE_PROJECTS = [
     "plasma-nano", # Not sure why this is needed to begin with
     "selenium-webdriver-at-spi", # Testing only
     "union", # Still under construction; not ready for use yet
-    "knighttime", # Still Alpha and hasn't gone through kdereview yet
     "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
     "qqc2-breeze-style", # Mobile-only; not needed for desktop UX
     "wacomtablet", # X11-only and we only ship Wayland
