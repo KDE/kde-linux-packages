@@ -36,6 +36,7 @@ KDE_BUILDER_TARGETS = [
 ]
 
 IGNORE_PROJECTS = [
+    "cxx-rust-cssparser", # Dependency of Union; not ready for use yet
     "kgamma", # X11-only and we only ship Wayland
     "kwin-x11", # KDE Linux plans on using new technologies when possible
     "packagekit-qt", # To avoid pacman packages showing up in discover
