@@ -43,7 +43,6 @@ IGNORE_PROJECTS = [
     "oxygen", # KDE Linux is about the future; this old theme is the past
     "oxygen-icons", # KDE Linux is about the future; this old theme is the past
     "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
-    "plasma-keyboard", # Still under construction; not ready for use yet
     "plasma-nano", # Not sure why this is needed to begin with
     "selenium-webdriver-at-spi", # Testing only
     "union", # Still under construction; not ready for use yet
