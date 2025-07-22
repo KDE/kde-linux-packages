@@ -157,6 +157,8 @@ run_kde_builder(["--metadata-only"])
 # get project info from kde-builder
 result = run_kde_builder(["--query", "project-info"] + KDE_BUILDER_TARGETS)
 project_infos = yaml.safe_load(result)
+if not project_infos or len(project_infos) == 0:
+    raise Exception(f"Error parsing project info: {result}")
 
 third_party_projects = [
     project
@@ -188,6 +190,7 @@ for project, info in project_infos.items():
         raise Exception(f"Missing arch dependencies for {project}")
 
     pkgname = package_name(project)
+    print(f"Generating PKGBUILD for {pkgname}…")
 
     arch_deps = arch_projects[project]
     if not arch_deps:

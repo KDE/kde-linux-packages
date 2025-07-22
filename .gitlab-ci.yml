@@ -6,29 +6,15 @@ include:
     file:
       - /gitlab-templates/reuse-lint.yml
 
-Build Docker Image:
-  stage: .pre
-  tags:
-    - kde-linux-x86_64
-  image:
-    name: gcr.io/kaniko-project/executor:v1.23.2-debug
-    entrypoint: [""]
-  script:
-    - /kaniko/executor
-        --context "${CI_PROJECT_DIR}"
-        --build-arg "PROJECT_DIR=${CI_PROJECT_DIR}"
-        --dockerfile "${CI_PROJECT_DIR}/Dockerfile"
-        --destination "${CI_REGISTRY_IMAGE}:latest"
-  rules:
-    - changes:
-      - Dockerfile
-
-Build in Docker:
+build:
   stage: build
   tags:
-    - kde-linux-x86_64
-  image: ${CI_REGISTRY_IMAGE}:latest
-  script: ./make-packages.sh
+    - VM
+    - amd64
+  image: storage.kde.org/vm-images/kde-linux-builder
+  script:
+    - sudo ./bootstrap.sh
+    - ./make-packages.sh
   artifacts:
     untracked: false
     when: always

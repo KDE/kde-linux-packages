@@ -2,7 +2,14 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2024 Lasath Fernando <devel@lasath.org>
 
-set -xe
+set -xeu
+
+curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
+cd paru-bin
+makepkg --noconfirm --syncdeps --install
+cd ..
+
+paru -S --noconfirm --needed --skipreview aurutils
 
 # Set up mirrorlist.
 BUILD_DATE=$(date -u -d 'yesterday' +%Y/%m/%d)
