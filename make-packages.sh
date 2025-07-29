@@ -111,6 +111,7 @@ if [ -z "$CDN_UPLOAD_KEY" ]; then
     exit 0
 fi
 
+chmod 600 "$CDN_UPLOAD_KEY" # make sure key is not world readable. ssh gets angry otherwise
 CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
 
 rsync --archive --verbose --compress \
