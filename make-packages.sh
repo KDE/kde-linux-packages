@@ -114,5 +114,5 @@ fi
 CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
 
 rsync --archive --verbose --compress \
-    --rsh="ssh -vvv -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
+    --rsh="ssh -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
     $artifactsDir/ $CDN_UPLOAD_URL
