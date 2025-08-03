@@ -33,9 +33,6 @@ AUR_TARGETS=(
     steam-devices-git
     systemd-bootchart
 
-    # includes `git mr` which is mentioned in our dev docs
-    git-extras
-
     # Useful for distrobox/devcontainers
     paru-bin
     visual-studio-code-bin
