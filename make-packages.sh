@@ -32,9 +32,6 @@ AUR_TARGETS=(
     snapd
     steam-devices-git
 
-    # Useful for distrobox/devcontainers
-    paru-bin
-    visual-studio-code-bin
     kde-builder-git
 
     # We use systemd-sysupdated to update the OS from plasma-discover
