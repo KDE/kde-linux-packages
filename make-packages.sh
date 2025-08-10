@@ -4,6 +4,10 @@
 
 set -xeu
 
+# Use our custom config file for it
+mkdir -p "$HOME/.config"
+curl -L "https://invent.kde.org/kde-linux/kde-linux-packages/-/raw/work/hadi/help-nate/kde-builder.yaml" -o "$HOME/.config/kde-builder.yaml"
+
 curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
 cd paru-bin
 makepkg --noconfirm --syncdeps --install
