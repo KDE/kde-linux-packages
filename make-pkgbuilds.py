@@ -38,21 +38,13 @@ KDE_BUILDER_TARGETS = [
     "workspace",
 ]
 
-IGNORE_PROJECTS = [
-    "cxx-rust-cssparser", # Dependency of Union; not ready for use yet
-    "kgamma", # X11-only and we only ship Wayland
-    "kwin-x11", # KDE Linux plans on using new technologies when possible
-    "packagekit-qt", # To avoid pacman packages showing up in discover
-    "oxygen", # KDE Linux is about the future; this old theme is the past
-    "oxygen-icons", # KDE Linux is about the future; this old theme is the past
-    "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
-    "plasma-nano", # Not sure why this is needed to begin with
-    "selenium-webdriver-at-spi", # Testing only
-    "union", # Still under construction; not ready for use yet
-    "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
-    "qqc2-breeze-style", # Mobile-only; not needed for desktop UX
-    "wacomtablet", # X11-only and we only ship Wayland
-]
+kde_builder_config_file_path = os.path.expanduser(~/.config/kde-builder.yaml)
+
+with open(kde_builder_config_file_path, "r") as kde_builder_config_file:
+    kde_builder_config_data = yaml.safe_load(kde_builder_config_file)
+if not kde_builder_config_data or len(kde_builder_config_data) == 0:
+    raise Exception(f"Error parsing kde-builder.yaml file: {result}")
+IGNORE_PROJECTS = kde_builder_config_data.get("global", {}).get("ignore-projects", [])
 
 IGNORE_ARCH_DEPS = {
     # Package group with only one package in it
@@ -68,23 +60,8 @@ FORCE_THIRD_PARTY = [
     "zxing-cpp",
 ]
 
-EXTRA_CMAKE_OPTIONS = [
-    "-G Ninja",
-    "-DCMAKE_INSTALL_PREFIX=/usr",
-    "-DBUILD_TESTING=OFF",
-    "-DCMAKE_INSTALL_LIBEXECDIR=lib",
-    "-DWITH_PYTHON_VENDORING=OFF",
-    "-DBUILD_PYTHON_BINDINGS=OFF",
-    "-DCMAKE_BUILD_TYPE=RelWithDebInfo",
-    # CMake 3.31 added new warnings that get triggered a lot with
-    # our Extra CMake Modules. Suppress them to avoid exceeding the
-    # log size limit.
-    # https://cmake.org/cmake/help/latest/policy/CMP0175.html
-    "-Wno-dev",
-    # Build the KDE-Linux backend of Discover
-    "-DBUILD_SystemdSysupdateBackend=ON"
-]
-
+cmake_options = kde_builder_config_data.get("global", {}).get("cmake-options", "")
+EXTRA_CMAKE_OPTIONS = cmake_options.split()
 
 CI_PROJECT_DIR = os.getenv("CI_PROJECT_DIR", default=".")
 PKGBUILDS_DIR = os.getenv("PKGBUILDS_DIR", default=f"{CI_PROJECT_DIR}/pkgbuilds")
@@ -154,7 +131,6 @@ def run_kde_builder(args):
 
 
 # initialize kde-builder
-run_kde_builder(["--generate-config"])
 run_kde_builder(["--metadata-only"])
 
 # get project info from kde-builder

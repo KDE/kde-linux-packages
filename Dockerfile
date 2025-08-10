@@ -33,6 +33,9 @@ RUN useradd -m -s /bin/bash builder && \
 RUN git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder && \
     ln -s /kde-builder/kde-builder /usr/local/bin
 
+# Use our custom config file for it
+COPY kde-builder.yaml $HOME/.config/kde-builder.yaml
+
 # Set up project directory
 RUN mkdir -p $PROJECT_DIR && \
     chown -R builder:builder $PROJECT_DIR
