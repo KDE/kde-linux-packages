@@ -34,8 +34,6 @@ AUR_TARGETS=(
     snapd
     steam-devices-git
 
-    kde-builder-git
-
     # We use systemd-sysupdated to update the OS from plasma-discover
     # Since its API is unstable, it's only available in -git versions
     'systemd-git'
