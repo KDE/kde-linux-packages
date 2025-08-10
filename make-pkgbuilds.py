@@ -38,7 +38,7 @@ KDE_BUILDER_TARGETS = [
     "workspace",
 ]
 
-kde_builder_config_file_path = os.path.expanduser(~/.config/kde-builder.yaml)
+kde_builder_config_file_path = os.path.expanduser("~/.config/kde-builder.yaml")
 
 with open(kde_builder_config_file_path, "r") as kde_builder_config_file:
     kde_builder_config_data = yaml.safe_load(kde_builder_config_file)
