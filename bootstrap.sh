@@ -27,3 +27,6 @@ pacman --sync --refresh --noconfirm \
 # because there are some issues with the latest version
 git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder
 ln -s /kde-builder/kde-builder /usr/local/bin
+
+# Use our custom config file for it
+cp kde-builder.yaml $HOME/.config/kde-builder.yaml
