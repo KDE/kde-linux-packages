@@ -33,9 +33,6 @@ RUN useradd -m -s /bin/bash builder && \
 RUN git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder && \
     ln -s /kde-builder/kde-builder /usr/local/bin
 
-# Use our custom config file for it
-COPY kde-builder.yaml $HOME/.config/kde-builder.yaml
-
 # Set up project directory
 RUN mkdir -p $PROJECT_DIR && \
     chown -R builder:builder $PROJECT_DIR
@@ -45,6 +42,9 @@ ENV PROJECT_DIR=$PROJECT_DIR
 # Switch to builder user and run make-packages.sh
 USER builder
 WORKDIR $PROJECT_DIR
+
+# Use our custom config file for it
+COPY kde-builder.yaml $HOME/.config/kde-builder.yaml
 
 RUN curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz && \
     cd paru-bin && \
