@@ -9,7 +9,7 @@ include:
 build:
   stage: build
   tags:
-    - VM
+    - LargeVM
     - amd64
   image: storage.kde.org/vm-images/kde-linux-builder
   script:
