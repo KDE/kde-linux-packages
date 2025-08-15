@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2024 Lasath Fernando <devel@lasath.org>
 
-set -xeu
+# -u being missing is on purpose, as it would blow up on CDN_UPLOAD_KEY
+# being missing, which is sometimes intentional
+set -xe
 
 curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
 cd paru-bin
