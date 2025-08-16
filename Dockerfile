@@ -33,7 +33,6 @@ RUN useradd -m -s /bin/bash builder && \
 RUN git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder && \
     ln -s /kde-builder/kde-builder /usr/local/bin
 
-
 # Set up project directory
 RUN mkdir -p $PROJECT_DIR && \
     chown -R builder:builder $PROJECT_DIR
