@@ -16,6 +16,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
+    "ark",
+    "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
     "kdeconnect-kde",
@@ -25,6 +27,7 @@ KDE_BUILDER_TARGETS = [
     "kimageformats",
     "kio-fuse",
     "kio-gdrive",
+    "konsole",
     "kpmcore",
     "kunifiedpush",
     "kwalletmanager",
