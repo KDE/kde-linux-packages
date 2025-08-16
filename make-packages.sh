@@ -6,7 +6,8 @@
 # being missing, which is sometimes intentional
 set -xe
 
-cp kde-builder.yaml $HOME/.config/kde-builder.yaml
+mkdir -p $HOME/.config/
+cp /tmp/kde-builder.yaml $HOME/.config/kde-builder.yaml
 
 curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
 cd paru-bin

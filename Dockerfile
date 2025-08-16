@@ -44,8 +44,6 @@ ENV PROJECT_DIR=$PROJECT_DIR
 USER builder
 WORKDIR $PROJECT_DIR
 
-# Use our custom config file for kde-builder
-COPY kde-builder.yaml .
-
+COPY kde-builder.yaml /tmp/kde-builder.yaml
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]
