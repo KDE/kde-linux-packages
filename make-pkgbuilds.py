@@ -48,7 +48,7 @@ IGNORE_PROJECTS = kde_builder_config_data.get("global", {}).get("ignore-projects
 
 IGNORE_ARCH_DEPS = {
     # Package group with only one package in it
-    "phonon-qt6-vlc",
+    "phonon-qt6-backend",
 }
 
 VIRTUAL_PACKAGES = {"kwallet": ["org.freedesktop.secrets"]}

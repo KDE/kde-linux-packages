@@ -12,10 +12,7 @@ global:
   # it easier to ensure that you have all the projects needed, but the
   # dependencies are not very fine-grained so this can result in quite a few
   # projects being installed that you didn't need.
-
-  # Different for KDE Linux: All KDE dependencies are already included, so don't
-  # do unnecessary work
-  include-dependencies: false
+  include-dependencies: true
 
   source-dir: ~/kde/src  # Directory for downloaded source code
   build-dir: ~/kde/build  # Directory to build KDE into before installing
