@@ -33,8 +33,6 @@ RUN useradd -m -s /bin/bash builder && \
 RUN git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder && \
     ln -s /kde-builder/kde-builder /usr/local/bin
 
-# Use our custom config file for it
-COPY kde-builder.yaml $HOME/.config/kde-builder.yaml
 
 # Set up project directory
 RUN mkdir -p $PROJECT_DIR && \
@@ -42,9 +40,12 @@ RUN mkdir -p $PROJECT_DIR && \
 
 ENV PROJECT_DIR=$PROJECT_DIR
 
-# Switch to builder user and run make-packages.sh
+# Switch to "builder" user for all subsequent actions
 USER builder
 WORKDIR $PROJECT_DIR
+
+# Use our custom config file for kde-builder
+COPY kde-builder.yaml .
 
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]
