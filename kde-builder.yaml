@@ -24,7 +24,8 @@ global:
   # This somewhat roundabout process is done because we want the
   # configure paths to be /usr/ to prevent issues from paths differing
   # between system and source-built stuff.
-  install-dir: /usr/  # Directory to install KDE software into
+  install-dir: ~/kde/usr
+  # install-dir: /usr/  # Directory to install KDE software into
 
   # qt-install-dir: ~/kde/qt  # Directory to install Qt if kde-builder supplies it
   log-dir: ~/kde/log  # Directory to write logs into
