@@ -43,11 +43,5 @@ ENV PROJECT_DIR=$PROJECT_DIR
 USER builder
 WORKDIR $PROJECT_DIR
 
-RUN curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz && \
-    cd paru-bin && \
-    makepkg --noconfirm --syncdeps --install
-
-RUN paru -S --noconfirm --needed --skipreview aurutils
-
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]
