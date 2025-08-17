@@ -8,37 +8,37 @@ config-version: 2
 global:
   branch-group: kf6-qt6
 
-  # All KDE dependencies are already included, so don't do
-  # unnecessary work
-  include-dependencies: false
+  # Finds and includes *KDE*-based dependencies into the build. This makes
+  # it easier to ensure that you have all the projects needed, but the
+  # dependencies are not very fine-grained so this can result in quite a few
+  # projects being installed that you didn't need.
+  include-dependencies: true
 
   source-dir: ~/kde/src  # Directory for downloaded source code
   build-dir: ~/kde/build  # Directory to build KDE into before installing
-  log-dir: ~/kde/log  # Directory to write logs into
 
-  # Tell kde-builder to use /usr/ as the configure location, but later
-  # we'll actually install everything into ~/kde/ which is the source
-  # for our system extension, so all the files end up at /usr/ anyway.
+  # Different for KDE Linux: tell kde-builder to use /usr/ as the configure
+  # location. In this CI this works with no modification, but on a user's system,
+  # we'll also later actually install everything into ~/kde/ which is the source
+  # for the system extension, so all the files end up at /usr/ anyway.
   # This somewhat roundabout process is done because we want the
   # configure paths to be /usr/ to prevent issues from paths differing
   # between system and source-built stuff.
-  install-dir: /usr/
+  install-dir: ~/kde/usr
+  # install-dir: /usr/  # Directory to install KDE software into
 
-  # …Now tell kde-builder to actually install the files into ~/kde
-  set-env:
-    DESTDIR: "~/kde"
+  # qt-install-dir: ~/kde/qt  # Directory to install Qt if kde-builder supplies it
+  log-dir: ~/kde/log  # Directory to write logs into
 
-  # Use system Qt paths to prevent issues
-  # Don't build docs because we don't ship them in KDE Linux
-  # Don't build Python bindings because we don't yet include their
-  #   dependencies out of the box
-  # Merge libexec and lib, like the base OS does
-  # Build Discover's sysupdate backend
-  # Don't build the X11 version of the touchpad KCM
-  # Don't build local testing stuff since the CI is better
-  # Use ccache for everything to further avoid unnecessary work
+  # Different for KDE Linux:
+  # -DCMAKE_BUILD_TYPE=RelWithDebInfo: The default
+  # -DKDE_INSTALL_USE_QT_SYS_PATHS=ON: Use system Qt paths to prevent issues
+  # -DBUILD_HTML_DOCS=OFF & -DBUILD_MAN_DOCS=OFF: We don't ship them in KDE Linux
+  # -DBUILD_TESTING=OFF: They take too long and you can re-enable them locally if you want them
+  # -DBUILD_PYTHON_BINDINGS=OFF & -DWITH_PYTHON_VENDORING=OFF Don't build Python bindings because we don't yet include their dependencies out of the box
+  # -DCMAKE_INSTALL_LIBEXECDIR=lib Merge libexec and lib for simplicity
   cmake-options: >
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DBUILD_HTML_DOCS=OFF -DBUILD_MAN_DOCS=OFF -DBUILD_PYTHON_BINDINGS=OFF -DWITH_PYTHON_VENDORING=OFF -DCMAKE_INSTALL_LIBEXECDIR=lib -DBUILD_SystemdSysupdateBackend=ON -DBUILD_KCM_TOUCHPAD_X11=OFF -DBUILD_TESTING=OFF -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_C_LINKER_LAUNCHER=ccache -DCMAKE_CXX_LINKER_LAUNCHER=ccache
+    -DCMAKE_BUILD_TYPE=RelWithDebInfo -DKDE_INSTALL_USE_QT_SYS_PATHS=ON -DBUILD_HTML_DOCS=OFF -DBUILD_MAN_DOCS=OFF -DBUILD_TESTING=OFF -DBUILD_PYTHON_BINDINGS=OFF -DWITH_PYTHON_VENDORING=OFF -Wno-dev -DCMAKE_INSTALL_LIBEXECDIR=lib
 
   # kde-builder sets 2 options which is used in options like make-options or set-env
   # to help manage the number of compile jobs that happen during a build:
@@ -53,6 +53,7 @@ global:
   num-cores-low-mem: "auto"
 
   # Makes the built-from-source Plasma session accessible from the SDDM login screen.
+
   # Different for KDE Linux: Don't install login session files since we're
   # already building everything to the final location
   install-login-session: false

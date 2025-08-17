@@ -43,6 +43,6 @@ ENV PROJECT_DIR=$PROJECT_DIR
 USER builder
 WORKDIR $PROJECT_DIR
 
-COPY kde-builder.yaml .
+COPY kde-builder-ci.yaml .
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]
