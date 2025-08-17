@@ -43,5 +43,6 @@ ENV PROJECT_DIR=$PROJECT_DIR
 USER builder
 WORKDIR $PROJECT_DIR
 
+COPY extra-projects.yaml .
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]

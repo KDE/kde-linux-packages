@@ -81,8 +81,6 @@ EXTRA_CMAKE_OPTIONS = [
     # log size limit.
     # https://cmake.org/cmake/help/latest/policy/CMP0175.html
     "-Wno-dev",
-    # Build the KDE-Linux backend of Discover
-    "-DBUILD_SystemdSysupdateBackend=ON"
 ]
 
 
@@ -155,6 +153,13 @@ def run_kde_builder(args):
 
 # initialize kde-builder
 run_kde_builder(["--generate-config"])
+
+kde_builder_config_file_path = os.path.expanduser("~/.config/kde-builder.yaml")
+extra_projects_config_file = "extra-projects.yaml"
+
+with open(extra_projects_config_file, 'r') as extras, open(kde_builder_config_file_path, 'a') as base:
+    base.write(extras.read())
+
 run_kde_builder(["--metadata-only"])
 
 # get project info from kde-builder
