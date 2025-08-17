@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
     "ark",
+    "calamares",
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
