@@ -5,12 +5,15 @@ include:
   - project: sysadmin/ci-utilities
     file:
       - /gitlab-templates/reuse-lint.yml
+      - /gitlab-templates/blocks/workflow.yml
 
 build:
   stage: build
   tags:
     - LargeVM
     - amd64
+  rules:
+    - !reference [.default_rules, rules]
   image: storage.kde.org/vm-images/kde-linux-builder
   script:
     - sudo ./bootstrap.sh
