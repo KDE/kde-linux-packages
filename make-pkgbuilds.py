@@ -27,6 +27,7 @@ KDE_BUILDER_TARGETS = [
     "kimageformats",
     "kio-fuse",
     "kio-gdrive",
+    "kiss",
     "konsole",
     "kpmcore",
     "kunifiedpush",
