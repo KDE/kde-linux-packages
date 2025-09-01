@@ -86,6 +86,9 @@ mkdir -p $packagesDir
 mv $pkgbuildsDir/*/*.pkg.tar.zst $packagesDir
 repo-add $packagesDir/kde-linux.db.tar.gz $packagesDir/*.pkg.tar.zst
 
+# Move PKGBUILDS into.the artifacts folder to be uploaded
+mv "$pkgbuildsDir" "$artifactsDir/"
+
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
 sudo tee -a /etc/pacman.conf <<- EOF
 [kde-linux]
