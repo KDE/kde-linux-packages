@@ -26,5 +26,4 @@ build:
     when: always
     access: all
     paths:
-      - ${CI_PROJECT_DIR}/artifacts
       - ${CI_PROJECT_DIR}/logs
