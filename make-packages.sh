@@ -110,3 +110,8 @@ CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
 rsync --archive --verbose --compress \
     --rsh="ssh -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
     $artifactsDir/ $CDN_UPLOAD_URL
+
+sudo pacman --sync --refresh --noconfirm python-pip
+pip3 install --break-system-packages minio
+git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
+ci-utilities/sync-s3-folder.py --mode upload --local "$artifactsDir/" --remote storage.kde.org/kde-linux-packages/repo
