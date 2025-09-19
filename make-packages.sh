@@ -127,3 +127,5 @@ mkdir ccache
 tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chdir, it's a bit confusing
 
 "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose || true
+
+ls -lahR "$CI_PROJECT_DIR"
