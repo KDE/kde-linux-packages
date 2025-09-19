@@ -6,6 +6,11 @@
 # being missing, which is sometimes intentional
 set -xe
 
+curl https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar | tar xz || true
+export CCACHE_DIR="$HOME/ccache"
+ccache --set-config=max_size=50G
+echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
+
 curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
 cd paru-bin
 makepkg --noconfirm --syncdeps --install
@@ -110,3 +115,15 @@ CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
 rsync --archive --verbose --compress \
     --rsh="ssh -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
     $artifactsDir/ $CDN_UPLOAD_URL
+
+cd
+git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
+CI_UTILITIES_DIR="$PWD/ci-utilities"
+
+mkdir "$CI_PROJECT_DIR/upload"
+cd "$CI_PROJECT_DIR/upload"
+mv "$artifactsDir" repo # rename
+mkdir ccache
+tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chdir, it's a bit confusing
+
+"$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose || true

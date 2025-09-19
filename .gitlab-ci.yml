@@ -15,6 +15,9 @@ build:
   rules:
     - !reference [.default_rules, rules]
   image: storage.kde.org/vm-images/kde-linux-builder
+  id_tokens:
+    MINIO_OIDC:
+      aud: https://tokens.kde.org
   script:
     - sudo ./bootstrap.sh
     - ./make-packages.sh
@@ -23,5 +26,4 @@ build:
     when: always
     access: all
     paths:
-      - ${CI_PROJECT_DIR}/artifacts
       - ${CI_PROJECT_DIR}/logs

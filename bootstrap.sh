@@ -20,8 +20,9 @@ echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/p
 pacman-key --init
 pacman-key --populate
 pacman --sync --refresh --noconfirm \
-        sudo base-devel git ninja rsync openssh \
-        python-yaml python-setproctitle python-requests python-srcinfo
+        sudo base-devel git ninja rsync openssh ccache \
+        python-yaml python-setproctitle python-requests python-srcinfo \
+        python-minio
 
 # Clone the KDE Builder repository and pin to a specific commit
 # because there are some issues with the latest version
