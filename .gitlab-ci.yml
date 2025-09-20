@@ -21,6 +21,9 @@ build:
   script:
     - sudo ./bootstrap.sh
     - ./make-packages.sh
+  after_script:
+    # Try to prevent the cleanup from erroring out on unexpected content.
+    - rm --recursive --force upload pkgbuilds artifacts
   artifacts:
     untracked: false
     when: always
