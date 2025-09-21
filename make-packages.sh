@@ -128,4 +128,7 @@ tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chd
 
 "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose || true
 
+cd "$CI_PROJECT_DIR"
+# Try to prevent the cleanup from erroring out on unexpected content.
+rm --recursive --force upload pkgbuilds artifacts
 ls -lahR "$CI_PROJECT_DIR"
