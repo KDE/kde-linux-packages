@@ -10,7 +10,7 @@ include:
 build:
   stage: build
   tags:
-    - LargeVM
+    - VM
     - amd64
   rules:
     - !reference [.default_rules, rules]
@@ -20,7 +20,6 @@ build:
       aud: https://tokens.kde.org
   script:
     - sudo ./bootstrap.sh
-    - ./make-packages.sh
   artifacts:
     untracked: false
     when: always
