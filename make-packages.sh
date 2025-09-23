@@ -7,8 +7,11 @@
 set -xe
 
 curl https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar | tar xz || true
+# Unclear which ccache.conf gets used by makepkg :(
+sudo ccache --set-config=max_size=50G # Sets /root/.config/ccache/ccache.conf
+ccache --set-config=max_size=50G # Sets ~/.config/ccache/ccache.conf
 export CCACHE_DIR="$HOME/ccache"
-sudo ccache --set-config=max_size=50G
+ccache --set-config=max_size=50G # Sets $CCACHE_DIR/ccache.conf
 echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
 
 curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
