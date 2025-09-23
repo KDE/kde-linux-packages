@@ -19,7 +19,8 @@ echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/p
 # Initialize pacman and install packages
 pacman-key --init
 pacman-key --populate
-pacman --sync --refresh --noconfirm \
+# --refresh twice to force a refresh
+pacman --sync --refresh --refresh --noconfirm --sysupgrade \
         sudo base-devel git ninja rsync openssh ccache \
         python-yaml python-setproctitle python-requests python-srcinfo \
         python-minio
