@@ -6,7 +6,7 @@
 # being missing, which is sometimes intentional
 set -xe
 
-curl https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar | tar xz || true
+curl https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar | tar -x || true
 # Unclear which ccache.conf gets used by makepkg :(
 sudo ccache --set-config=max_size=50G # Sets /root/.config/ccache/ccache.conf
 ccache --set-config=max_size=50G # Sets ~/.config/ccache/ccache.conf
