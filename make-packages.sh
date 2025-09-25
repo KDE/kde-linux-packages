@@ -134,5 +134,4 @@ tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chd
 cd "$CI_PROJECT_DIR"
 # Try to prevent the cleanup from erroring out on unexpected content.
 rm --recursive --force upload pkgbuilds artifacts
-ls -lahR "$CI_PROJECT_DIR"
 git clean -dfx
