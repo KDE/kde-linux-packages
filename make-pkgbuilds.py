@@ -25,6 +25,7 @@ KDE_BUILDER_TARGETS = [
     "kde-inotify-survey",
     "kdenetwork-filesharing",
     "kimageformats",
+    "kio-admin",
     "kio-fuse",
     "kio-gdrive",
     "plasma-setup",
