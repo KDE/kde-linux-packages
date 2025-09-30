@@ -88,10 +88,18 @@ packagesDebugDir=$artifactsDir/packages-debug
 # Move the debug packages first so regular packages are easier to find
 mkdir -p $packagesDebugDir
 mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $packagesDebugDir
+
+# Rebuild repo from scratch instead of updating existing one
+# This will automatically exclude packages that no longer exist
+rm -f "$packagesDebugDir"/kde-linux-debug.db*
 repo-add $packagesDebugDir/kde-linux-debug.db.tar.gz $packagesDebugDir/*.pkg.tar.zst
 
 mkdir -p $packagesDir
 mv $pkgbuildsDir/*/*.pkg.tar.zst $packagesDir
+
+# Rebuild repo from scratch instead of updating existing one
+# This will automatically exclude packages that no longer exist
+rm -f "$packagesDir"/kde-linux.db*
 repo-add $packagesDir/kde-linux.db.tar.gz $packagesDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
