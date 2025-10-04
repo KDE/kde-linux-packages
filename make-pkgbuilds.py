@@ -30,6 +30,7 @@ KDE_BUILDER_TARGETS = [
     "kio-gdrive",
     "plasma-setup",
     "konsole",
+    "yakuake",
     "kpmcore",
     "kunifiedpush",
     "kwalletmanager",
