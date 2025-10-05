@@ -290,3 +290,8 @@ for job, project_dir in jobs:
 
     with open(f"{project_dir}/.SRCINFO", "w") as f:
         f.write(stdout)
+
+subprocess.Popen(
+    ["git", "clone", "https://gitlab.archlinux.org/archlinux/packaging/packages/systemd"],
+    cwd=PKGBUILDS_DIR,
+).wait()

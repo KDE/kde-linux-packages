@@ -41,14 +41,6 @@ AUR_TARGETS=(
 
     snapd
     steam-devices-git
-
-    # We use systemd-sysupdated to update the OS from plasma-discover
-    # Since its API is unstable, it's only available in -git versions
-    'systemd-git'
-    'systemd-libs-git'
-    'systemd-resolvconf-git'
-    'systemd-sysvcompat-git'
-    'systemd-ukify-git'
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
@@ -77,6 +69,12 @@ Path = $pkgbuildsDir
 EOF
 
 # Paru will build an install the packages in the correct order
+
+# Override the systemd build to enable sysupdated (--nocheck because the tests like to fail for no reason)
+MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
+    paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --nocheck" systemd
+
+# Build our fake banana packages
 paru --sync --needed --noconfirm $packages
 
 #### Create arch repositories to be published as artifacts
