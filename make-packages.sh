@@ -14,12 +14,10 @@ export CCACHE_DIR="$HOME/ccache"
 ccache --set-config=max_size=50G # Sets $CCACHE_DIR/ccache.conf
 echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
 
-curl https://aur.archlinux.org/cgit/aur.git/snapshot/paru-bin.tar.gz | tar xz
-cd paru-bin
+curl --location https://github.com/archlinux/aur/archive/refs/heads/paru.tar.gz | tar xz
+cd aur-paru
 makepkg --noconfirm --syncdeps --install
 cd ..
-
-paru -S --noconfirm --needed --skipreview aurutils
 
 # Set up mirrorlist.
 BUILD_DATE=$(date -u -d 'yesterday' +%Y/%m/%d)
@@ -68,6 +66,12 @@ cat <<- EOF >> $HOME/.config/paru/paru.conf
 Path = $pkgbuildsDir
 EOF
 
+for package in "${AUR_TARGETS[@]}"; do
+    rm -rf "${pkgbuildsDir:?}/$package"
+    git clone --branch "$package" --single-branch https://github.com/archlinux/aur.git "$pkgbuildsDir/$package"
+done
+packages+=" ${AUR_TARGETS[*]}"
+
 # Paru will build an install the packages in the correct order
 
 # Override the systemd build to enable sysupdated (--nocheck because the tests like to fail for no reason)
@@ -99,10 +103,6 @@ SigLevel = Never
 Server = file://$packagesDir
 EOF
 sudo pacman --sync --refresh
-
-# This fetches from AUR, builds and adds to our repo in one command :D
-# --no-check here is because systemd-git sometimes has failing tests ¯\_(ツ)_/¯
-aur sync --no-view --no-confirm --no-check --database kde-linux "${AUR_TARGETS[@]}"
 
 # $CDN_UPLOAD_KEY is only available for protected branches
 if [ -z "$CDN_UPLOAD_KEY" ]; then
