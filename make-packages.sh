@@ -34,9 +34,6 @@ AUR_TARGETS=(
     # TTY Screenreader
     fenrir-git
 
-    # Limits USB writeback cache for safer and faster ejection.
-    usb-dirty-pages-udev
-
     snapd
     steam-devices-git
 )
