@@ -124,7 +124,10 @@ mv "$artifactsDir" repo # rename
 mkdir ccache
 tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chdir, it's a bit confusing
 
-"$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose || true
+# Note that --delete technically allows for a race condition between packages and imaging pipeline, the hope is that the
+# chance is so small that we don't need to care. Should this become a problem we'll need a bespoke vacuuming logic to clean
+# up packages older than X days instead.
+"$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose || true
 
 cd "$CI_PROJECT_DIR"
 # Try to prevent the cleanup from erroring out on unexpected content.
