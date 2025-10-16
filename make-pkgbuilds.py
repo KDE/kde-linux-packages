@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
     "ark",
+    "audiocd-kio",
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
@@ -28,7 +29,6 @@ KDE_BUILDER_TARGETS = [
     "kio-admin",
     "kio-fuse",
     "kio-gdrive",
-    "audiocd-kio",
     "plasma-setup",
     "konsole",
     "kpmcore",
