@@ -28,6 +28,7 @@ KDE_BUILDER_TARGETS = [
     "kio-admin",
     "kio-fuse",
     "kio-gdrive",
+    "audiocd-kio",
     "plasma-setup",
     "konsole",
     "kpmcore",
