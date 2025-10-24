@@ -225,6 +225,10 @@ for project, info in project_infos.items():
         else:
             depends.append(package_name(kde_dep))
 
+    options = []
+    if project == 'cxx-rust-cssparser':
+        options.append('!lto') # not supported and breaks linking
+
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
 
@@ -245,6 +249,7 @@ optdepends=({optdepends})
 provides=({to_bash_array(arch_deps['replaces'] + VIRTUAL_PACKAGES.get(project, []))})
 conflicts=({to_bash_array(arch_deps['replaces'])})
 replaces=({to_bash_array(arch_deps['replaces'])})
+options=({to_bash_array(options)})
 
 pkgver() {{
   cd "{project}"
