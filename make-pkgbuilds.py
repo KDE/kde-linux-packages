@@ -42,7 +42,6 @@ KDE_BUILDER_TARGETS = [
 ]
 
 IGNORE_PROJECTS = [
-    "cxx-rust-cssparser", # Dependency of Union; not ready for use yet
     "kgamma", # X11-only and we only ship Wayland
     "kwin-x11", # KDE Linux plans on using new technologies when possible
     "packagekit-qt", # To avoid pacman packages showing up in discover
@@ -51,7 +50,6 @@ IGNORE_PROJECTS = [
     "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
     "plasma-nano", # Not sure why this is needed to begin with
     "selenium-webdriver-at-spi", # Testing only
-    "union", # Still under construction; not ready for use yet
     "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
     "qqc2-breeze-style", # Mobile-only; not needed for desktop UX
     "wacomtablet", # X11-only and we only ship Wayland
