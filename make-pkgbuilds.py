@@ -39,7 +39,33 @@ KDE_BUILDER_TARGETS = [
     "pulseaudio-qt",
     "spectacle",
     "workspace",
+    "mobile",
+    "bigscreen"
 ]
+
+# Tag certain projects that are part of specific groups
+# Otherwise, the default group is kde-linux-base
+KDE_BUILDER_GROUPS = {
+    "kde-linux-desktop": [
+        "plasma-setup",
+        "spectacle",
+        "plasma-desktop"
+    ],
+    "kde-linux-mobile": [
+        "plasma-mobile",
+        "plasma-nano",
+        "plasma-settings",
+        "qqc2-breeze-style"
+    ],
+    "kde-linux-bigscreen": [
+        "plasma-bigscreen",
+        "plasma-nano",
+        "qqc2-breeze-style",
+        "aura-browser",
+        "plank-player",
+        "plasma-remotecontrollers"
+    ]
+}
 
 IGNORE_PROJECTS = [
     "kgamma", # X11-only and we only ship Wayland
@@ -48,10 +74,8 @@ IGNORE_PROJECTS = [
     "oxygen", # KDE Linux is about the future; this old theme is the past
     "oxygen-icons", # KDE Linux is about the future; this old theme is the past
     "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
-    "plasma-nano", # Not sure why this is needed to begin with
     "selenium-webdriver-at-spi", # Testing only
     "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
-    "qqc2-breeze-style", # Mobile-only; not needed for desktop UX
     "wacomtablet", # X11-only and we only ship Wayland
 ]
 
@@ -227,6 +251,16 @@ for project, info in project_infos.items():
     if project == 'cxx-rust-cssparser':
         options.append('!lto') # not supported and breaks linking
 
+    # find the package groups that the package belongs to
+    groups = []
+    for group in KDE_BUILDER_GROUPS:
+        if pkgname in KDE_BUILDER_GROUPS[group]:
+            groups.append(group)
+
+    # if not part of any group, put it as part of the base
+    if not groups:
+        groups = ["kde-linux-base"]
+
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
 
@@ -238,7 +272,7 @@ url="https://community.kde.org/KDE_Linux"
 pkgdesc="Build of {project} for KDE Linux"
 arch=('x86_64')
 license=('GPL-2.0-only')
-groups=(kde-linux banana)
+groups=(banana {to_bash_array(groups)})
 source=("{project}::git+{repo}")
 sha256sums=('SKIP')
 depends=({to_bash_array(depends)})
