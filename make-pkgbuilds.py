@@ -36,7 +36,6 @@ KDE_BUILDER_TARGETS = [
     "kunifiedpush",
     "kwalletmanager",
     "partitionmanager",
-    "phonon-vlc",
     "pulseaudio-qt",
     "spectacle",
     "workspace",
