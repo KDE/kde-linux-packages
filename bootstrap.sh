@@ -23,7 +23,10 @@ pacman-key --populate
 pacman --sync --refresh --refresh --noconfirm --sysupgrade \
         sudo base-devel git ninja rsync openssh ccache \
         python-yaml python-setproctitle python-requests python-srcinfo \
-        python-minio
+        python-minio python-pip
+
+# Packaged version as of 2025-11-28 is broken and doesn't work with our scripts
+pip install minio --break-system-packages
 
 # Clone the KDE Builder repository and pin to a specific commit
 # because there are some issues with the latest version
