@@ -26,6 +26,7 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
         python-minio python-pip
 
 # Packaged version as of 2025-11-28 is broken and doesn't work with our scripts
+# Also note the same hack in make-packages.sh
 pip install minio --break-system-packages
 
 # Clone the KDE Builder repository and pin to a specific commit

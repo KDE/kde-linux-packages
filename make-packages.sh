@@ -124,6 +124,9 @@ mv "$artifactsDir" repo # rename
 mkdir ccache
 tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chdir, it's a bit confusing
 
+# Packaged version as of 2025-11-28 is broken and doesn't work with our scripts
+pip install minio --break-system-packages
+
 # Note that --delete technically allows for a race condition between packages and imaging pipeline, the hope is that the
 # chance is so small that we don't need to care. Should this become a problem we'll need a bespoke vacuuming logic to clean
 # up packages older than X days instead.
