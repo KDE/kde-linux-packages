@@ -21,7 +21,6 @@ KDE_BUILDER_TARGETS = [
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
-    "kaccounts-providers",
     "kdeconnect-kde",
     "kdegraphics-thumbnailers",
     "kde-inotify-survey",
@@ -31,6 +30,7 @@ KDE_BUILDER_TARGETS = [
     "kio-fuse",
     "kio-gdrive",
     "plasma-setup",
+    "konlineaccounts",
     "konsole",
     "kpmcore",
     "kunifiedpush",
@@ -42,6 +42,7 @@ KDE_BUILDER_TARGETS = [
 ]
 
 IGNORE_PROJECTS = [
+    "kaccounts-integration", # We are using KOnlineAccounts
     "kgamma", # X11-only and we only ship Wayland
     "kwin-x11", # KDE Linux plans on using new technologies when possible
     "packagekit-qt", # To avoid pacman packages showing up in discover
