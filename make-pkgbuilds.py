@@ -21,6 +21,7 @@ KDE_BUILDER_TARGETS = [
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
+    "kdebugsettings",
     "kdeconnect-kde",
     "kdegraphics-thumbnailers",
     "kde-inotify-survey",
