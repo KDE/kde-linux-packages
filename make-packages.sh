@@ -33,8 +33,6 @@ sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 AUR_TARGETS=(
     # TTY Screenreader
     fenrir-git
-
-    snapd
     steam-devices-git
 )
 
