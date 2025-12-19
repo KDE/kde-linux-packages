@@ -6,13 +6,7 @@
 # being missing, which is sometimes intentional
 set -xe
 
-curl https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar | tar -x || true
-# Unclear which ccache.conf gets used by makepkg :(
-sudo ccache --set-config=max_size=50G # Sets /root/.config/ccache/ccache.conf
-ccache --set-config=max_size=50G # Sets ~/.config/ccache/ccache.conf
-export CCACHE_DIR="$HOME/ccache"
-ccache --set-config=max_size=50G # Sets $CCACHE_DIR/ccache.conf
-echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
+echo "BUILDENV=(!distcc color ccache check !sign)" > "$HOME/.makepkg.conf"
 
 curl --location https://github.com/archlinux/aur/archive/refs/heads/paru.tar.gz | tar xz
 cd aur-paru
@@ -39,13 +33,10 @@ AUR_TARGETS=(
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
+packages=()
 
-PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py
-
-# Assume all directories in pkgbuildsDir are packages to build
-# We have to do this because some targets like `workspace` are
-# not actually packages.
-packages=$(basename -a $pkgbuildsDir/kde-banana-*)
+systemd_version=$(pacman -Q --info systemd |grep -E 'Version\s+:(.+)' | cut --delimiter=: --fields=2 | xargs)
+git clone --branch "$systemd_version" https://gitlab.archlinux.org/archlinux/packaging/packages/systemd "$pkgbuildsDir/systemd"
 
 # Install already built packages in parallel for a speedup (except debug packages)
 alreadyBuiltPackages="$(find $pkgbuildsDir -name '*.pkg.tar.zst' | grep -v -- '-git-debug-' || true)"
@@ -93,46 +84,6 @@ mkdir -p $packagesDir
 mv $pkgbuildsDir/*/*.pkg.tar.zst $packagesDir
 repo-add $packagesDir/kde-linux.db.tar.gz $packagesDir/*.pkg.tar.zst
 
-# aurutils *really* doesn't like it if the repo is not in pacman.conf
-sudo tee -a /etc/pacman.conf <<- EOF
-[kde-linux]
-SigLevel = Never
-Server = file://$packagesDir
-EOF
-sudo pacman --sync --refresh
-
-# $CDN_UPLOAD_KEY is only available for protected branches
-if [ -z "$CDN_UPLOAD_KEY" ]; then
-    echo "No CDN_UPLOAD_KEY found, skipping upload"
-    exit 0
-fi
-
-chmod 600 "$CDN_UPLOAD_KEY" # make sure key is not world readable. ssh gets angry otherwise
-CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
-
-rsync --archive --verbose --compress \
-    --rsh="ssh -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
-    $artifactsDir/ $CDN_UPLOAD_URL
-
-cd
-git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
-CI_UTILITIES_DIR="$PWD/ci-utilities"
-
 mkdir "$CI_PROJECT_DIR/upload"
 cd "$CI_PROJECT_DIR/upload"
 mv "$artifactsDir" repo # rename
-mkdir ccache
-tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chdir, it's a bit confusing
-
-# Packaged version as of 2025-11-28 is broken and doesn't work with our scripts
-pip install minio --break-system-packages
-
-# Note that --delete technically allows for a race condition between packages and imaging pipeline, the hope is that the
-# chance is so small that we don't need to care. Should this become a problem we'll need a bespoke vacuuming logic to clean
-# up packages older than X days instead.
-"$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
-
-cd "$CI_PROJECT_DIR"
-# Try to prevent the cleanup from erroring out on unexpected content.
-rm --recursive --force upload pkgbuilds artifacts
-git clean -dfx

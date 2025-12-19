@@ -8,7 +8,9 @@ set -eux
 export PARALLELL_DOWNLOADS=50
 
 # Use the pacman.conf without kde linux repos. Otherwise we'd download binaries form there when instead we want to build from source.
-cp /etc/pacman.conf.nolinux /etc/pacman.conf
+if [ ! -f /.dockerenv ]; then
+    cp /etc/pacman.conf.nolinux /etc/pacman.conf
+fi
 
 # Enable parallel downloads for more speed
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /etc/pacman.conf
@@ -23,7 +25,7 @@ pacman-key --populate
 pacman --sync --refresh --refresh --noconfirm --sysupgrade \
         sudo base-devel git ninja rsync openssh ccache \
         python-yaml python-setproctitle python-requests python-srcinfo \
-        python-minio python-pip
+        python-minio python-pip ruby erofs-utils
 
 # Packaged version as of 2025-11-28 is broken and doesn't work with our scripts
 # Also note the same hack in make-packages.sh
