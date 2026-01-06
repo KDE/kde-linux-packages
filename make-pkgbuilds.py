@@ -43,6 +43,7 @@ KDE_BUILDER_TARGETS = [
 
 IGNORE_PROJECTS = [
     "kaccounts-integration", # We are using KOnlineAccounts
+    "kde-vdg-extras", # Work around https://invent.kde.org/sdk/kde-builder/-/issues/197
     "kgamma", # X11-only and we only ship Wayland
     "kwin-x11", # KDE Linux plans on using new technologies when possible
     "packagekit-qt", # To avoid pacman packages showing up in discover
