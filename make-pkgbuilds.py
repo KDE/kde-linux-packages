@@ -52,6 +52,7 @@ IGNORE_PROJECTS = [
     "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
     "plasma-nano", # Not sure why this is needed to begin with
     "selenium-webdriver-at-spi", # Testing only
+    "snap-kcm", # We only include CLI support for Snap
     "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
     "qqc2-breeze-style", # Mobile-only; not needed for desktop UX
     "wacomtablet", # X11-only and we only ship Wayland
