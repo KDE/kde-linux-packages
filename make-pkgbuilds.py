@@ -34,6 +34,7 @@ KDE_BUILDER_TARGETS = [
     "konsole",
     "kpmcore",
     "kunifiedpush",
+    "kup",
     "kwalletmanager",
     "partitionmanager",
     "pulseaudio-qt",
