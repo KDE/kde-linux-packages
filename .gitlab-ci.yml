@@ -7,6 +7,11 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
+variables:
+  REPO_METADATA_BRANCH:
+    value: "master"
+    description: "Branch of sysadmin/repo-metadata to use"
+
 build:
   stage: build
   tags:
