@@ -16,6 +16,30 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
+    "ark",
+    "audiocd-kio",
+    "dolphin",
+    "dolphin-plugins",
+    "ffmpegthumbs",
+    "kdeconnect-kde",
+    "kdegraphics-thumbnailers",
+    "kde-inotify-survey",
+    "kdenetwork-filesharing",
+    "kimageformats",
+    "kio-admin",
+    "kio-fuse",
+    "kio-gdrive",
+    "plasma-setup",
+    "konlineaccounts",
+    "konsole",
+    "kpmcore",
+    "kunifiedpush",
+    "kup",
+    "kwalletmanager",
+    "partitionmanager",
+    "pulseaudio-qt",
+    "spectacle",
+    "workspace",
     "kapsule",
 ]
 
