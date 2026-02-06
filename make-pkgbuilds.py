@@ -16,30 +16,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 KDE_BUILDER_TARGETS = [
-    "ark",
-    "audiocd-kio",
-    "dolphin",
-    "dolphin-plugins",
-    "ffmpegthumbs",
-    "kdeconnect-kde",
-    "kdegraphics-thumbnailers",
-    "kde-inotify-survey",
-    "kdenetwork-filesharing",
-    "kimageformats",
-    "kio-admin",
-    "kio-fuse",
-    "kio-gdrive",
-    "plasma-setup",
-    "konlineaccounts",
-    "konsole",
-    "kpmcore",
-    "kunifiedpush",
-    "kup",
-    "kwalletmanager",
-    "partitionmanager",
-    "pulseaudio-qt",
-    "spectacle",
-    "workspace",
+    "kapsule",
 ]
 
 IGNORE_PROJECTS = [
@@ -166,6 +143,14 @@ with open(extra_projects_config_file, 'r') as extras, open(kde_builder_config_fi
     base.write(extras.read())
 
 run_kde_builder(["--metadata-only"])
+
+# checkout the branch of repo-metadata that has KDE Linux-specific data
+REPO_METADATA_DIR = os.path.expanduser("~/.local/state/sysadmin-repo-metadata")
+subprocess.run(
+    ["git", "checkout", "work/fernando/add-kde-linux"],
+    cwd=REPO_METADATA_DIR,
+    check=True,
+)
 
 # get project info from kde-builder
 result = run_kde_builder(["--query", "project-info"] + KDE_BUILDER_TARGETS)
