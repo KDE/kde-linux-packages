@@ -21,6 +21,7 @@ KDE_BUILDER_TARGETS = [
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
+    "kapsule",
     "kdeconnect-kde",
     "kdegraphics-thumbnailers",
     "kde-inotify-survey",
@@ -40,7 +41,6 @@ KDE_BUILDER_TARGETS = [
     "pulseaudio-qt",
     "spectacle",
     "workspace",
-    "kapsule",
 ]
 
 IGNORE_PROJECTS = [
