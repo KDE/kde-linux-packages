@@ -74,7 +74,7 @@ MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --nocheck" systemd
 
 # Remove old iptables so it won't conflict with iptables-nft below
-sudo pacman --remove --nodeps --noconfirm iptables
+sudo pacman --remove --nodeps --nodeps --noconfirm iptables
 
 # Build our fake banana packages
 paru --sync --needed --noconfirm $packages
