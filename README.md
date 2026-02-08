@@ -18,6 +18,13 @@ Note: The contents of the `artifacts/banana` and `artifacts/banana-debug` direct
 You can add them to your pacman configuration to install the packages locally for testing.
 
 
+## Configuration
+
+When running the pipeline manually from GitLab, the **`REPO_METADATA_BRANCH`** variable
+can be set to use a custom branch of `sysadmin/repo-metadata`. This is useful for testing
+changes to KDE project metadata (e.g. build configs or dependency info) before they land
+on `master`.
+
 ## Investigation
 
 The build is done in two steps:

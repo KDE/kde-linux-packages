@@ -7,6 +7,14 @@ include:
       - /gitlab-templates/reuse-lint.yml
       - /gitlab-templates/blocks/workflow.yml
 
+# Defining variables here makes them show up in the new pipeline UI
+# https://invent.kde.org/kde-linux/kde-linux-packages/-/pipelines/new
+# where users can override temporarily to test their changes.
+variables:
+  REPO_METADATA_BRANCH:
+    value: "master"
+    description: "Branch of sysadmin/repo-metadata to use"
+
 build:
   stage: build
   tags:

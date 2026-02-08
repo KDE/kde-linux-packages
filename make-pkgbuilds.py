@@ -21,6 +21,7 @@ KDE_BUILDER_TARGETS = [
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
+    "kapsule",
     "kdeconnect-kde",
     "kdegraphics-thumbnailers",
     "kde-inotify-survey",
@@ -167,6 +168,16 @@ with open(extra_projects_config_file, 'r') as extras, open(kde_builder_config_fi
 
 run_kde_builder(["--metadata-only"])
 
+# checkout the branch of repo-metadata that has KDE Linux-specific data
+REPO_METADATA_BRANCH = os.getenv("REPO_METADATA_BRANCH", "master")
+REPO_METADATA_DIR = os.path.expanduser("~/.local/state/sysadmin-repo-metadata")
+if REPO_METADATA_BRANCH != "master":
+    subprocess.run(
+        ["git", "checkout", REPO_METADATA_BRANCH],
+        cwd=REPO_METADATA_DIR,
+        check=True,
+    )
+
 # get project info from kde-builder
 result = run_kde_builder(["--query", "project-info"] + KDE_BUILDER_TARGETS)
 project_infos = yaml.safe_load(result)
@@ -183,7 +194,7 @@ third_party_projects = [
 arch_deps_info = {}
 with open(
     os.path.expanduser(
-        "~/.local/state/sysadmin-repo-metadata/distro-dependencies/arch.yaml"
+        REPO_METADATA_DIR + "/distro-dependencies/arch.yaml"
     ),
     "r",
 ) as f:
