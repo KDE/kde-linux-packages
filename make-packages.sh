@@ -33,6 +33,7 @@ sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 AUR_TARGETS=(
     # TTY Screenreader
     fenrir-git
+    steam-devices-git
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
