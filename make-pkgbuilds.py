@@ -184,6 +184,15 @@ project_infos = yaml.safe_load(result)
 if not project_infos or len(project_infos) == 0:
     raise Exception(f"Error parsing project info: {result}")
 
+# merge extra dependencies that can't be declared via kde-builder config
+extra_deps_file = "extra-dependencies.yaml"
+with open(extra_deps_file, "r") as f:
+    extra_deps = yaml.safe_load(f) or {}
+for project_name, deps in extra_deps.items():
+    if project_name not in project_infos:
+        raise Exception(f"extra-dependencies.yaml references unknown project: {project_name}")
+    project_infos[project_name]["dependencies"].extend(deps)
+
 third_party_projects = [
     project
     for project, info in project_infos.items()
