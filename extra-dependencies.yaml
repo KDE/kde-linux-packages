@@ -1,0 +1,15 @@
+# Extra dependency declarations for projects built by KDE Linux.
+#
+# kde-builder resolves dependencies from sysadmin/repo-metadata, but that
+# repository is maintained by KDE and cannot easily be patched in this
+# pipeline. The kde-builder YAML configuration (extra-projects.yaml) only
+# supports build options (cmake-options, branch, etc.) — it has no mechanism
+# for declaring inter-project dependencies.
+#
+# This file fills that gap. Each key is a project name, and its value is a
+# list of additional projects it depends on. These are merged into the
+# dependency list that kde-builder provides via `--query project-info`.
+
+
+konsole:
+  - kapsule
