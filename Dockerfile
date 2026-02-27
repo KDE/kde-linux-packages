@@ -44,5 +44,6 @@ USER builder
 WORKDIR $PROJECT_DIR
 
 COPY extra-projects.yaml .
+COPY extra-dependencies.yaml .
 COPY make-packages.sh .
 CMD ["./make-packages.sh"]
