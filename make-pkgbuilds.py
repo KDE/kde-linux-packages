@@ -44,20 +44,20 @@ KDE_BUILDER_TARGETS = [
 ]
 
 IGNORE_PROJECTS = [
-    "kaccounts-integration", # We are using KOnlineAccounts
-    "kde-vdg-extras", # Work around https://invent.kde.org/sdk/kde-builder/-/issues/197
-    "kgamma", # X11-only and we only ship Wayland
-    "kwin-x11", # KDE Linux plans on using new technologies when possible
-    "packagekit-qt", # To avoid pacman packages showing up in discover
-    "oxygen", # KDE Linux is about the future; this old theme is the past
-    "oxygen-icons", # KDE Linux is about the future; this old theme is the past
-    "oxygen-sounds", # KDE Linux is about the future; this old theme is the past
-    "plasma-nano", # Not sure why this is needed to begin with
-    "selenium-webdriver-at-spi", # Testing only
-    "sddm-kcm", # We use plasma-login-manager, which includes its own KCM
-    "snap-kcm", # We only include CLI support for Snap
-    "plymouth-kcm", # Not needed as we have an offcial Plymouth theme
-    "wacomtablet", # X11-only and we only ship Wayland
+    "kaccounts-integration",  # We are using KOnlineAccounts
+    "kde-vdg-extras",  # Work around https://invent.kde.org/sdk/kde-builder/-/issues/197
+    "kgamma",  # X11-only and we only ship Wayland
+    "kwin-x11",  # KDE Linux plans on using new technologies when possible
+    "packagekit-qt",  # To avoid pacman packages showing up in discover
+    "oxygen",  # KDE Linux is about the future; this old theme is the past
+    "oxygen-icons",  # KDE Linux is about the future; this old theme is the past
+    "oxygen-sounds",  # KDE Linux is about the future; this old theme is the past
+    "plasma-nano",  # Not sure why this is needed to begin with
+    "selenium-webdriver-at-spi",  # Testing only
+    "sddm-kcm",  # We use plasma-login-manager, which includes its own KCM
+    "snap-kcm",  # We only include CLI support for Snap
+    "plymouth-kcm",  # Not needed as we have an offcial Plymouth theme
+    "wacomtablet",  # X11-only and we only ship Wayland
 ]
 
 IGNORE_ARCH_DEPS = {
@@ -163,7 +163,10 @@ run_kde_builder(["--generate-config"])
 kde_builder_config_file_path = os.path.expanduser("~/.config/kde-builder.yaml")
 extra_projects_config_file = "extra-projects.yaml"
 
-with open(extra_projects_config_file, 'r') as extras, open(kde_builder_config_file_path, 'a') as base:
+with (
+    open(extra_projects_config_file, "r") as extras,
+    open(kde_builder_config_file_path, "a") as base,
+):
     base.write(extras.read())
 
 run_kde_builder(["--metadata-only"])
@@ -190,7 +193,9 @@ with open(extra_deps_file, "r") as f:
     extra_deps = yaml.safe_load(f) or {}
 for project_name, deps in extra_deps.items():
     if project_name not in project_infos:
-        raise Exception(f"extra-dependencies.yaml references unknown project: {project_name}")
+        raise Exception(
+            f"extra-dependencies.yaml references unknown project: {project_name}"
+        )
     project_infos[project_name]["dependencies"].extend(deps)
 
 third_party_projects = [
@@ -202,9 +207,7 @@ third_party_projects = [
 # This file will be split up into individual repositories
 arch_deps_info = {}
 with open(
-    os.path.expanduser(
-        REPO_METADATA_DIR + "/distro-dependencies/arch.yaml"
-    ),
+    os.path.expanduser(REPO_METADATA_DIR + "/distro-dependencies/arch.yaml"),
     "r",
 ) as f:
     arch_deps_info = yaml.safe_load(f)
@@ -248,8 +251,8 @@ for project, info in project_infos.items():
             depends.append(package_name(kde_dep))
 
     options = []
-    if project == 'cxx-rust-cssparser':
-        options.append('!lto') # not supported and breaks linking
+    if project == "cxx-rust-cssparser":
+        options.append("!lto")  # not supported and breaks linking
 
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
@@ -268,9 +271,9 @@ sha256sums=('SKIP')
 depends=({to_bash_array(depends)})
 makedepends=({to_bash_array(arch_deps["makedepends"])})
 optdepends=({optdepends})
-provides=({to_bash_array(arch_deps['replaces'] + VIRTUAL_PACKAGES.get(project, []))})
-conflicts=({to_bash_array(arch_deps['replaces'])})
-replaces=({to_bash_array(arch_deps['replaces'])})
+provides=({to_bash_array(arch_deps["replaces"] + VIRTUAL_PACKAGES.get(project, []))})
+conflicts=({to_bash_array(arch_deps["replaces"])})
+replaces=({to_bash_array(arch_deps["replaces"])})
 options=({to_bash_array(options)})
 
 pkgver() {{
@@ -320,6 +323,10 @@ for job, project_dir in jobs:
         f.write(stdout)
 
 subprocess.Popen(
-    ["git", "clone", "https://gitlab.archlinux.org/archlinux/packaging/packages/systemd"],
+    [
+        "git",
+        "clone",
+        "https://gitlab.archlinux.org/archlinux/packaging/packages/systemd",
+    ],
     cwd=PKGBUILDS_DIR,
 ).wait()
