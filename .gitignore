@@ -6,3 +6,5 @@ pacman-cache
 pkgbuilds
 logs
 artifacts
+aur-paru
+ccache
