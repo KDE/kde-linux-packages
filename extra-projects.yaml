@@ -17,3 +17,7 @@ override plasma-login-manager:
 # Kapsule is only enabled for KDE Linux because it's still experimental
 override konsole:
     cmake-options: -DWITH_KAPSULE=ON
+
+# Temporary: fix ninja race condition for ffi.h generation
+override cxx-rust-cssparser:
+    branch: work/fernando/fix-ninja-ffi-h-race-condition
