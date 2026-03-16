@@ -163,11 +163,25 @@ run_kde_builder(["--generate-config"])
 kde_builder_config_file_path = os.path.expanduser("~/.config/kde-builder.yaml")
 extra_projects_config_file = "extra-projects.yaml"
 
-with (
-    open(extra_projects_config_file, "r") as extras,
-    open(kde_builder_config_file_path, "a") as base,
-):
-    base.write(extras.read())
+with open(extra_projects_config_file, "r") as f:
+    extra_projects_content = f.read()
+
+with open(kde_builder_config_file_path, "a") as base:
+    base.write(extra_projects_content)
+
+# Parse branch overrides from extra-projects.yaml.
+# kde-builder's --query project-info does not reflect branch overrides for
+# transitive dependencies, so we extract them here and apply them to the
+# PKGBUILD source URLs ourselves.
+extra_projects = yaml.safe_load(extra_projects_content) or {}
+branch_overrides: dict[str, str] = {}
+for key, values in extra_projects.items():
+    if key.startswith("override ") and isinstance(values, dict) and "branch" in values:
+        project = key[len("override ") :]
+        branch_overrides[project] = values["branch"]
+
+if branch_overrides:
+    logger.info(f"Branch overrides: {branch_overrides}")
 
 run_kde_builder(["--metadata-only"])
 
@@ -254,6 +268,10 @@ for project, info in project_infos.items():
     if project == "cxx-rust-cssparser":
         options.append("!lto")  # not supported and breaks linking
 
+    branch_fragment = (
+        f"#branch={branch_overrides[project]}" if project in branch_overrides else ""
+    )
+
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
 
@@ -266,7 +284,7 @@ pkgdesc="Build of {project} for KDE Linux"
 arch=('x86_64')
 license=('GPL-2.0-only')
 groups=(kde-linux banana)
-source=("{project}::git+{repo}")
+source=("{project}::git+{repo}{branch_fragment}")
 sha256sums=('SKIP')
 depends=({to_bash_array(depends)})
 makedepends=({to_bash_array(arch_deps["makedepends"])})
