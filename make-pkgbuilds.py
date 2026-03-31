@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 KDE_BUILDER_TARGETS = [
     "ark",
     "audiocd-kio",
+    "auto-chmod",
     "dolphin",
     "dolphin-plugins",
     "ffmpegthumbs",
