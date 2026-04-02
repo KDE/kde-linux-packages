@@ -266,9 +266,7 @@ for project, info in project_infos.items():
         else:
             depends.append(package_name(kde_dep))
 
-    options = []
-    if project == "cxx-rust-cssparser":
-        options.append("!lto")  # not supported and breaks linking
+    options = ["!lto"] # nothing but trouble with rust
 
     branch_fragment = (
         f"#branch={branch_overrides[project]}" if project in branch_overrides else ""
