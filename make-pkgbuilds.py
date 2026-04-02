@@ -238,9 +238,7 @@ for project, info in project_infos.items():
         else:
             depends.append(package_name(kde_dep))
 
-    options = []
-    if project == 'cxx-rust-cssparser':
-        options.append('!lto') # not supported and breaks linking
+    options = ['!lto'] # breaks linking with things involving rust and is in general problematic
 
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
