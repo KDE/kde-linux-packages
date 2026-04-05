@@ -14,9 +14,9 @@ export CCACHE_DIR="$HOME/ccache"
 ccache --set-config=max_size=50G # Sets $CCACHE_DIR/ccache.conf
 echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
 
-# Install paru-bin from the GitHub mirror
-curl --location https://github.com/archlinux/aur/archive/refs/heads/paru-bin.tar.gz | tar xz
-cd aur-paru-bin
+# Install paru from the GitHub mirror
+curl --location https://github.com/archlinux/aur/archive/refs/heads/paru.tar.gz | tar xz
+cd aur-paru
 makepkg --noconfirm --syncdeps --install
 cd ..
 
