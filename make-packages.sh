@@ -72,6 +72,25 @@ packages+=" ${AUR_TARGETS[*]}"
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --nocheck" systemd
 
+
+# -----------------------------------------------------------------
+# TODO: Remove once the Arch Package is updated.
+# Bump shadow to 4.19.4 and skip checksums
+git clone https://gitlab.archlinux.org/archlinux/packaging/packages/shadow "$pkgbuildsDir/shadow"
+cd "$pkgbuildsDir/shadow"
+
+# Check if shadow has been updated in Arch
+if ! grep -q "pkgver=4.18.0" PKGBUILD; then
+    echo "ERROR: shadow package in Arch has been updated. Please remove this version bump code."
+    exit 1
+fi
+
+sed -i 's/pkgver=.*/pkgver=4.19.4/' PKGBUILD
+sed -i '/^sha512sums=/,/^)/s/['\''0-9a-f]*$/SKIP/' PKGBUILD
+cd -
+paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck" shadow
+# -------------------------------------------------------------------
+
 # Remove old iptables so it won't conflict with iptables-nft below
 sudo pacman --remove --nodeps --nodeps --noconfirm iptables
 
