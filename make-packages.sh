@@ -14,7 +14,7 @@ export CCACHE_DIR="$HOME/ccache"
 ccache --set-config=max_size=50G # Sets $CCACHE_DIR/ccache.conf
 echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
 
-# Install paru from the GitHub mirror
+# Build paru from source
 curl --location https://github.com/archlinux/aur/archive/refs/heads/paru.tar.gz | tar xz
 cd aur-paru
 makepkg --noconfirm --syncdeps --install
@@ -79,13 +79,14 @@ if ! grep -q "pkgver=4.18.0" PKGBUILD; then
     exit 1
 fi
 
-# Set new version
+# Update pkgver
 sed -i 's/pkgver=.*/pkgver=4.19.4/' PKGBUILD
 
-# Replace sha512sums and b2sums arrays with 'SKIP'
-sed -i '/^sha512sums=/,/^)/c\sha512sums=('\''SKIP'\'')' PKGBUILD
-sed -i '/^b2sums=/,/^)/c\b2sums=('\''SKIP'\'')' PKGBUILD
-# Clear validpgpkeys to avoid PGP errors
+# Replace each sha512sum entry with 'SKIP'
+sed -i "/^sha512sums=/,/^)/s/'[0-9a-f]\+'/'SKIP'/g" PKGBUILD
+# Replace each b2sum entry with 'SKIP'
+sed -i "/^b2sums=/,/^)/s/'[0-9a-f]\+'/'SKIP'/g" PKGBUILD
+# Clear validpgpkeys array
 sed -i '/^validpgpkeys=/,/^)/c\validpgpkeys=()' PKGBUILD
 
 cd -
