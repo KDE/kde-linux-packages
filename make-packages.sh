@@ -2,18 +2,21 @@
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2024 Lasath Fernando <devel@lasath.org>
 
+# -u being missing is on purpose, as it would blow up on CDN_UPLOAD_KEY
+# being missing, which is sometimes intentional
 set -xe
 
 curl https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar | tar -x || true
-sudo ccache --set-config=max_size=50G
-ccache --set-config=max_size=50G
+# Unclear which ccache.conf gets used by makepkg :(
+sudo ccache --set-config=max_size=50G # Sets /root/.config/ccache/ccache.conf
+ccache --set-config=max_size=50G # Sets ~/.config/ccache/ccache.conf
 export CCACHE_DIR="$HOME/ccache"
-ccache --set-config=max_size=50G
+ccache --set-config=max_size=50G # Sets $CCACHE_DIR/ccache.conf
 echo "BUILDENV=(!distcc color ccache check !sign)" >> "$HOME/.makepkg.conf"
 
-# Install paru-bin from AUR
-git clone https://aur.archlinux.org/paru-bin.git /tmp/paru-bin
-cd /tmp/paru-bin
+# Install paru-bin from the GitHub mirror
+curl --location https://github.com/archlinux/aur/archive/refs/heads/paru-bin.tar.gz | tar xz
+cd aur-paru-bin
 makepkg --noconfirm --syncdeps --install
 cd ..
 
@@ -23,24 +26,35 @@ BUILD_DATE=$(date -u -d 'yesterday' +%Y/%m/%d)
 echo "$BUILD_DATE" > "artifacts/build_date.txt"
 echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch"| sudo tee /etc/pacman.d/mirrorlist
 
+# Since the docker image does not get rebuilt on every run,
+# some packages may be out of date.
+# NOTE: refresh twice forces a refresh, this is to prevent cache timing confusions causing random 404 errors
 sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 
 AUR_TARGETS=(
+    # TTY Screenreader
     fenrir-git
 )
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
+
 PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py
 
+# Assume all directories in pkgbuildsDir are packages to build
+# We have to do this because some targets like `workspace` are
+# not actually packages.
 packages=$(basename -a $pkgbuildsDir/kde-banana-*)
 
-# Install already built packages in parallel
+# Install already built packages in parallel for a speedup (except debug packages)
 alreadyBuiltPackages="$(find $pkgbuildsDir -name '*.pkg.tar.zst' | grep -v -- '-git-debug-' || true)"
 echo "Reusing already built packages: $alreadyBuiltPackages"
 if [ -n "$alreadyBuiltPackages" ]; then
     sudo pacman --upgrade --noconfirm --needed $alreadyBuiltPackages
 fi
 
+# Right now this creates a local version of the AUR with the packages we created.
+# Long term, we should push these into the actual AUR so regular Arch Linux users
+# can also benefit from well maintained KDE git packages.
 mkdir -p $HOME/.config/paru
 cat <<- EOF >> $HOME/.config/paru/paru.conf
 [kde-linux]
@@ -54,10 +68,12 @@ done
 packages+=" ${AUR_TARGETS[*]}"
 
 # -----------------------------------------------------------------
-# Build shadow
+# TODO: Remove once the Arch Package is updated.
+# Bump shadow to 4.19.4 and skip checksums
 git clone https://gitlab.archlinux.org/archlinux/packaging/packages/shadow "$pkgbuildsDir/shadow"
 cd "$pkgbuildsDir/shadow"
 
+# Check if shadow has been updated in Arch
 if ! grep -q "pkgver=4.18.0" PKGBUILD; then
     echo "ERROR: shadow package in Arch has been updated. Please remove this version bump code."
     exit 1
@@ -66,32 +82,35 @@ fi
 # Set new version
 sed -i 's/pkgver=.*/pkgver=4.19.4/' PKGBUILD
 
-# Replace checksum arrays with SKIP
+# Replace sha512sums and b2sums arrays with 'SKIP'
 sed -i '/^sha512sums=/,/^)/c\sha512sums=('\''SKIP'\'')' PKGBUILD
 sed -i '/^b2sums=/,/^)/c\b2sums=('\''SKIP'\'')' PKGBUILD
-
-# Clear validpgpkeys array to avoid PGP errors
+# Clear validpgpkeys to avoid PGP errors
 sed -i '/^validpgpkeys=/,/^)/c\validpgpkeys=()' PKGBUILD
 
 cd -
 paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck" shadow
 # -----------------------------------------------------------------
 
-# Build systemd (with extra options)
+# Paru will build and install the packages in the correct order
+
+# Override the systemd build to enable sysupdated (--nocheck because the tests like to fail for no reason)
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --nocheck" systemd
 
-# Remove old iptables
+# Remove old iptables so it won't conflict with iptables-nft below
 sudo pacman --remove --nodeps --nodeps --noconfirm iptables
 
-# Build banana packages
+# Build our fake banana packages
 paru --sync --needed --noconfirm $packages
 
-#### Create arch repositories for artifacts
+#### Create arch repositories to be published as artifacts
+
 artifactsDir=$CI_PROJECT_DIR/artifacts
 packagesDir=$artifactsDir/packages
 packagesDebugDir=$artifactsDir/packages-debug
 
+# Move the debug packages first so regular packages are easier to find
 mkdir -p $packagesDebugDir
 mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $packagesDebugDir
 repo-add $packagesDebugDir/kde-linux-debug.db.tar.gz $packagesDebugDir/*.pkg.tar.zst
@@ -100,6 +119,7 @@ mkdir -p $packagesDir
 mv $pkgbuildsDir/*/*.pkg.tar.zst $packagesDir
 repo-add $packagesDir/kde-linux.db.tar.gz $packagesDir/*.pkg.tar.zst
 
+# aurutils *really* doesn't like it if the repo is not in pacman.conf
 sudo tee -a /etc/pacman.conf <<- EOF
 [kde-linux]
 SigLevel = Never
@@ -107,12 +127,13 @@ Server = file://$packagesDir
 EOF
 sudo pacman --sync --refresh
 
+# $CDN_UPLOAD_KEY is only available for protected branches
 if [ -z "$CDN_UPLOAD_KEY" ]; then
     echo "No CDN_UPLOAD_KEY found, skipping upload"
     exit 0
 fi
 
-chmod 600 "$CDN_UPLOAD_KEY"
+chmod 600 "$CDN_UPLOAD_KEY" # make sure key is not world readable. ssh gets angry otherwise
 CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
 
 rsync --archive --verbose --compress \
@@ -125,14 +146,19 @@ CI_UTILITIES_DIR="$PWD/ci-utilities"
 
 mkdir "$CI_PROJECT_DIR/upload"
 cd "$CI_PROJECT_DIR/upload"
-mv "$artifactsDir" repo
+mv "$artifactsDir" repo # rename
 mkdir ccache
-tar --directory="$HOME" --create --file=ccache/ccache.tar ccache
+tar --directory="$HOME" --create --file=ccache/ccache.tar ccache # mind that chdir, it's a bit confusing
 
+# Packaged version as of 2025-11-28 is broken and doesn't work with our scripts
 pip install minio --break-system-packages
 
+# Note that --delete technically allows for a race condition between packages and imaging pipeline, the hope is that the
+# chance is so small that we don't need to care. Should this become a problem we'll need a bespoke vacuuming logic to clean
+# up packages older than X days instead.
 "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
 
 cd "$CI_PROJECT_DIR"
+# Try to prevent the cleanup from erroring out on unexpected content.
 rm --recursive --force upload pkgbuilds artifacts
 git clean -dfx
