@@ -41,6 +41,7 @@ KDE_BUILDER_TARGETS = [
     "package-compatibility-helper",
     "partitionmanager",
     "pulseaudio-qt",
+    "selenium-webdriver-at-spi",  # For integrated testing of images
     "spectacle",
     "workspace",
 ]
@@ -55,7 +56,6 @@ IGNORE_PROJECTS = [
     "oxygen-icons",  # KDE Linux is about the future; this old theme is the past
     "oxygen-sounds",  # KDE Linux is about the future; this old theme is the past
     "plasma-nano",  # Not sure why this is needed to begin with
-    "selenium-webdriver-at-spi",  # Testing only
     "sddm-kcm",  # We use plasma-login-manager, which includes its own KCM
     "snap-kcm",  # We only include CLI support for Snap
     "plymouth-kcm",  # Not needed as we have an offcial Plymouth theme
