@@ -72,6 +72,7 @@ packages+=" ${AUR_TARGETS[*]}"
 # TODO: Remove once the Arch Package is updated.
 git clone https://gitlab.archlinux.org/archlinux/packaging/packages/shadow "$pkgbuildsDir/shadow"
 cd "$pkgbuildsDir/shadow"
+git checkout 7f67146c84bcbb8a8d85fccb9db80e5df520f1c1
 
 # Check if shadow has been updated in Arch
 # check for the actual feature
@@ -80,10 +81,10 @@ if useradd -D 2>/dev/null | grep -q '^BTRFS_SUBVOLUME_HOME='; then
     exit 1
 fi
 
-# Copy the patch into the directory
+# Copy the patches into the directory
 cp "$CI_PROJECT_DIR/patches/0004-useradd-support-btrfs.patch" .
 
-# Add the patch to the source array (just the filename)
+# Add the patches to the source array (just the filenames)
 sed -i "/^source=(/a \  '0004-useradd-support-btrfs.patch'" PKGBUILD
 
 cd -

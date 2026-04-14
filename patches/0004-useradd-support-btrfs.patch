@@ -3,7 +3,7 @@ SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
 From 3e8c105f0703264e947d8c034b90419794955d49 Mon Sep 17 00:00:00 2001
 From: Hadi Chokr <hadichokr@icloud.com>
 Date: Fri, 12 Dec 2025 11:18:06 +0100
-Subject: [PATCH] src/useradd: Support config for creating home dirs as Btrfs
+Subject: [PATCH V2] src/useradd: Support config for creating home dirs as Btrfs
  subvolumes
 
 Closes: #1162
@@ -12,10 +12,21 @@ Co-authored-by: Neal Gompa <ngompa@velocitylimitless.com>
 Signed-off-by: Hadi Chokr <hadichokr@icloud.com>
 Signed-off-by: Neal Gompa <ngompa@velocitylimitless.com>
 Reviewed-by: Alejandro Colomar <alx@kernel.org>
+
+Changes in V2:
+When the --btrfs-home option is used but the parent directory is not on a
+BTRFS filesystem, useradd previously failed with an error. This is too
+strict; instead, fall back to creating a regular directory and issue a
+warning. The subvolume creation is attempted only when the parent is
+BTRFS. Otherwise, a regular directory is created and a syslog warning is
+logged.
+
+Signed-off-by: Hadi Chokr <hadichokr@icloud.com>
+
 ---
  man/useradd.8.xml | 27 +++++++++++++++++++++++++++
- src/useradd.c     | 24 ++++++++++++++++++++++++
- 2 files changed, 51 insertions(+)
+ src/useradd.c | 69 +++++++++++++++++++++++++++++++++++++--------------
+ 2 files changed, 77 insertions(+), 19 deletions(-)
 
 diff --git a/man/useradd.8.xml b/man/useradd.8.xml
 index e6db7f6d..c745a620 100644
@@ -56,10 +67,10 @@ index e6db7f6d..c745a620 100644
  	<term>
  	  <option>-c</option>, <option>--comment</option>&nbsp;<replaceable>COMMENT</replaceable>
 diff --git a/src/useradd.c b/src/useradd.c
-index 899efe3c..8433ed8a 100644
+index 36b9b8f8..0ed9768b 100644
 --- a/src/useradd.c
 +++ b/src/useradd.c
-@@ -114,6 +114,7 @@ static const char *def_shell = "/bin/bash";
+@@ -108,6 +108,7 @@ static const char *def_shell = "/bin/bash";
  static const char *def_template = SKEL_DIR;
  static const char *def_usrtemplate = USRSKELDIR;
  static const char *def_create_mail_spool = "yes";
@@ -67,7 +78,7 @@ index 899efe3c..8433ed8a 100644
  static const char *def_log_init = "yes";
  
  static long def_inactive = -1;
-@@ -222,6 +223,7 @@ static bool home_added = false;
+@@ -216,6 +217,7 @@ static bool home_added = false;
  #define DSKEL			"SKEL"
  #define DUSRSKEL		"USRSKEL"
  #define DCREATE_MAIL_SPOOL	"CREATE_MAIL_SPOOL"
@@ -75,7 +86,7 @@ index 899efe3c..8433ed8a 100644
  #define DLOG_INIT		"LOG_INIT"
  
  /* local function prototypes */
-@@ -456,6 +458,7 @@ get_defaults(const struct option_flags *flags)
+@@ -449,6 +451,7 @@ get_defaults(void)
  				def_usrtemplate = xstrdup(ccp);
  			}
  		}
@@ -83,7 +94,7 @@ index 899efe3c..8433ed8a 100644
  		/*
  		 * Create by default user mail spool or not ?
  		 */
-@@ -466,6 +469,15 @@ get_defaults(const struct option_flags *flags)
+@@ -459,6 +462,15 @@ get_defaults(void)
  			def_create_mail_spool = xstrdup(ccp);
  		}
  
@@ -99,7 +110,7 @@ index 899efe3c..8433ed8a 100644
  		/*
  		 * By default do we add the user to the lastlog and faillog databases ?
  		 */
-@@ -500,6 +512,7 @@ static void show_defaults (void)
+@@ -493,6 +505,7 @@ static void show_defaults (void)
  	printf ("SKEL=%s\n", def_template);
  	printf ("USRSKEL=%s\n", def_usrtemplate);
  	printf ("CREATE_MAIL_SPOOL=%s\n", def_create_mail_spool);
@@ -107,7 +118,7 @@ index 899efe3c..8433ed8a 100644
  	printf ("LOG_INIT=%s\n", def_log_init);
  }
  
-@@ -523,6 +536,7 @@ set_defaults(void)
+@@ -516,6 +529,7 @@ set_defaults(void)
  	bool  out_skel = false;
  	bool  out_usrskel = false;
  	bool  out_create_mail_spool = false;
@@ -115,7 +126,7 @@ index 899efe3c..8433ed8a 100644
  	bool  out_log_init = false;
  	char  buf[1024];
  	char  *new_file = NULL;
-@@ -639,6 +653,11 @@ set_defaults(void)
+@@ -633,6 +647,11 @@ set_defaults(void)
  			        DCREATE_MAIL_SPOOL "=%s\n",
  			        def_create_mail_spool);
  			out_create_mail_spool = true;
@@ -127,7 +138,7 @@ index 899efe3c..8433ed8a 100644
  		} else if (!out_log_init && streq(buf, DLOG_INIT)) {
  			fprintf(ofp, DLOG_INIT "=%s\n", def_log_init);
  			out_log_init = true;
-@@ -673,6 +692,8 @@ set_defaults(void)
+@@ -667,6 +686,8 @@ set_defaults(void)
  
  	if (!out_create_mail_spool)
  		fprintf (ofp, DCREATE_MAIL_SPOOL "=%s\n", def_create_mail_spool);
@@ -136,7 +147,7 @@ index 899efe3c..8433ed8a 100644
  	if (!out_log_init)
  		fprintf (ofp, DLOG_INIT "=%s\n", def_log_init);
  	/*
-@@ -1431,6 +1452,9 @@ static void process_flags (int argc, char **argv, struct option_flags *flags)
+@@ -1426,6 +1447,9 @@ static void process_flags (int argc, char **argv)
  		}
  	}
  
@@ -146,6 +157,71 @@ index 899efe3c..8433ed8a 100644
  	if (!gflg && !Nflg && !Uflg) {
  		/* Get the settings from login.defs */
  		Uflg = getdef_bool ("USERGROUPS_ENAB");
+@@ -2215,10 +2239,10 @@ static void create_home (void)
+ 			continue;
+ 		}
+ 
+-		/* Check if parent directory is BTRFS, fail if requesting
+-		   subvolume but no BTRFS. The paths could be different by the
+-		   trailing slash
++		/* If requesting a subvolume and parent is BTRFS, create one.
++		   Otherwise fall back to a regular directory.
+ 		 */
++		bool dir_created = false;
+ #if WITH_BTRFS
+ 		if (subvolflg && (strlen(prefix_user_home) - (int)strlen(path)) <= 1) {
+ 			char *btrfs_check = strdup(path);
+@@ -2230,28 +2254,35 @@ static void create_home (void)
+ 				fail_exit(E_HOMEDIR);
+ 			}
+ 			stpcpy(&btrfs_check[strlen(path) - strlen(cp) - 1], "");
+-			if (is_btrfs(btrfs_check) <= 0) {
++			if (is_btrfs(btrfs_check) > 0) {
++				free(btrfs_check);
++				// make subvolume for user instead of directory
++				if (btrfs_create_subvolume(path)) {
++					fprintf(stderr,
++						_("%s: failed to create BTRFS subvolume: %s\n"),
++						Prog, path);
++					fail_exit(E_HOMEDIR);
++				}
++				dir_created = true;
++			} else {
++				free(btrfs_check);
++				/* Inform about fallback */
+ 				fprintf(stderr,
+-					_("%s: home directory \"%s\" must be mounted on BTRFS\n"),
+-					Prog, path);
+-				fail_exit(E_HOMEDIR);
++					_("%s: warning: \"%s\" is not on BTRFS, creating regular directory instead of subvolume\n"),
++					Prog, prefix_user_home);
++				SYSLOG((LOG_WARN,
++				       "useradd: fallback to regular directory for %s (BTRFS not available at %s)",
++				       user_name, prefix_user_home));
+ 			}
+-			free(btrfs_check);
+-			// make subvolume to mount for user instead of directory
+-			if (btrfs_create_subvolume(path)) {
+-				fprintf(stderr,
+-					_("%s: failed to create BTRFS subvolume: %s\n"),
++		}
++#endif
++		if (!dir_created) {
++			if (mkdir(path, 0) != 0) {
++				fprintf(stderr, _("%s: cannot create directory %s\n"),
+ 					Prog, path);
+ 				fail_exit(E_HOMEDIR);
+ 			}
+ 		}
+-		else
+-#endif
+-		if (mkdir(path, 0) != 0) {
+-			fprintf(stderr, _("%s: cannot create directory %s\n"),
+-				Prog, path);
+-			fail_exit(E_HOMEDIR);
+-		}
+ 		if (chown(path, 0, 0) < 0) {
+ 			fprintf(stderr,
+ 				_("%s: warning: chown on `%s' failed: %m\n"),
 -- 
 2.52.0
-
