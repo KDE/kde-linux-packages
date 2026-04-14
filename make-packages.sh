@@ -20,10 +20,36 @@ makepkg --noconfirm --syncdeps --install
 cd ..
 
 # Set up mirrorlist.
-BUILD_DATE=$(date -u -d 'yesterday' +%Y/%m/%d)
+MAX_DAYS=30
+ARTIFACTS_DIR="artifacts"
+MIRRORLIST="/etc/pacman.d/mirrorlist"
+BASE_URL="https://archive.archlinux.org/repos"
+
 [ -d artifacts ] || mkdir artifacts
-echo "$BUILD_DATE" > "artifacts/build_date.txt"
-echo "Server = https://archive.archlinux.org/repos/${BUILD_DATE}/\$repo/os/\$arch"| sudo tee /etc/pacman.d/mirrorlist
+
+mirror_found=0
+for ((offset=1; offset<=MAX_DAYS; offset++)); do
+    DATE=$(date -u -d "-${offset} days" +%Y/%m/%d)
+    DB_URL="${BASE_URL}/${DATE}/extra/os/x86_64/extra.db"
+
+    echo "Checking $DATE ..."
+
+    # Fetch the database and grep for fastfetch
+    if curl --silent --fail "$DB_URL" | zgrep -q "fastfetch"; then
+        echo "Found working repo: $DATE"
+        echo "$DATE" > "$ARTIFACTS_DIR/build_date.txt"
+        echo "Server = ${BASE_URL}/${DATE}/\$repo/os/\$arch" | sudo tee "$MIRRORLIST" > /dev/null
+        mirror_found=1
+        break
+    fi
+done
+
+if [ $mirror_found -eq 0 ]; then
+    echo "No working archive found in last $MAX_DAYS days."
+    echo "Check https://status.archlinux.org for potential DDoS or service problems."
+    echo "Or check https://bbs.archlinux.org for incident reports."
+    exit 1
+fi
 
 # Since the docker image does not get rebuilt on every run,
 # some packages may be out of date.
