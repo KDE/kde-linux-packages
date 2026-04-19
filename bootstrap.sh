@@ -6,6 +6,8 @@ set -eux
 
 # Set environment variables
 export PARALLELL_DOWNLOADS=50
+export ARTIFACTS_DIR="artifacts"
+export MIRRORLIST=/etc/pacman.d/mirrorlist
 
 # Use the pacman.conf without kde linux repos. Otherwise we'd download binaries form there when instead we want to build from source.
 cp /etc/pacman.conf.nolinux /etc/pacman.conf
@@ -14,7 +16,33 @@ cp /etc/pacman.conf.nolinux /etc/pacman.conf
 sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /etc/pacman.conf
 sed -i 's/NoProgressBar//' /etc/pacman.conf
 
-echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist
+[ -d artifacts ] || mkdir artifacts
+
+MAX_DAYS=30
+BASE_URL="https://archive.archlinux.org/repos"
+mirror_found=0
+for ((offset=1; offset<=MAX_DAYS; offset++)); do
+    DATE=$(date -u -d "-${offset} days" +%Y/%m/%d)
+    DB_URL="${BASE_URL}/${DATE}/extra/os/x86_64/extra.db"
+
+    echo "Checking $DATE ..."
+
+    # Fetch the database and grep for fastfetch
+    if curl --silent --fail "$DB_URL" | zgrep -q "fastfetch"; then
+        echo "Found working repo: $DATE"
+        echo "$DATE" > "$ARTIFACTS_DIR/build_date.txt"
+        echo "Server = ${BASE_URL}/${DATE}/\$repo/os/\$arch" | sudo tee "$MIRRORLIST" > /dev/null
+        mirror_found=1
+        break
+    fi
+done
+
+if [ $mirror_found -eq 0 ]; then
+    echo "No working archive found in last $MAX_DAYS days."
+    echo "Check https://status.archlinux.org for potential DDoS or service problems."
+    echo "Or check https://bbs.archlinux.org for incident reports."
+    exit 1
+fi
 
 # Initialize pacman and install packages
 pacman-key --init
