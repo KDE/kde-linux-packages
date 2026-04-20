@@ -61,3 +61,5 @@ pip install minio --break-system-packages
 # because there are some issues with the latest version
 git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder
 ln -s /kde-builder/kde-builder /usr/local/bin
+
+chown -R user:user $ARTIFACTS_DIR
