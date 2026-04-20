@@ -64,7 +64,7 @@ packages+=" ${AUR_TARGETS[*]}"
 
 # TODO: Remove once the systemd PRs #41260, #41414, #41429, #41491 are packaged in Arch.
 # --------------------------------------------------------------------------------------------------------
-# Build systemd from a specific upstream commit (no patching)
+# Build systemd from a specific upstream commit
 
 rm -rf "$pkgbuildsDir/systemd"
 git clone https://gitlab.archlinux.org/archlinux/packaging/packages/systemd "$pkgbuildsDir/systemd"
@@ -91,7 +91,7 @@ pkgver() {
 EOF
 fi
 
-# Fix prepare() path (git source = "systemd/")
+# Fix prepare() path
 sed -i 's|cd "$pkgname-$pkgver"|cd systemd|' "$PKGBUILD"
 
 # Build
