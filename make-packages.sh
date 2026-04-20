@@ -62,16 +62,12 @@ packages+=" ${AUR_TARGETS[*]}"
 
 # Paru will build an install the packages in the correct order
 
-# --------------------------------------------------------------------------------------------------------
 # TODO: Remove once the systemd PRs #41260, #41414, #41429, #41491 are packaged in Arch.
+# --------------------------------------------------------------------------------------------------------
+# Build systemd from a specific upstream commit (no patching)
 
 rm -rf "$pkgbuildsDir/systemd"
 git clone https://gitlab.archlinux.org/archlinux/packaging/packages/systemd "$pkgbuildsDir/systemd"
-
-# Pin ONLY the packaging repo (this is what you wanted)
-cd "$pkgbuildsDir/systemd"
-git checkout 486424a5bddceb661331599928d1046e83607b7f
-cd -
 
 # Safety check: if feature already exists, stop
 if systemd-repart --help 2>/dev/null | grep -q -- '--el-torito'; then
@@ -79,24 +75,26 @@ if systemd-repart --help 2>/dev/null | grep -q -- '--el-torito'; then
     exit 1
 fi
 
-# Download PR patches
-for pr in 41260 41414 41429 41491; do
-    curl --location --output "$pkgbuildsDir/systemd/pr-${pr}.patch" \
-        "https://github.com/systemd/systemd/pull/${pr}.patch"
-done
-
 PKGBUILD="$pkgbuildsDir/systemd/PKGBUILD"
 
-# Add patches to source array
-for pr in 41260 41414 41429 41491; do
-    sed -i "/^source=(/a \  'pr-${pr}.patch'" "$PKGBUILD"
-done
+# Replace source with git + pinned commit
+sed -i 's|^source=.*|source=("git+https://github.com/systemd/systemd#commit=2299a37e28249edd06fc66bfda2ad36106cf69da")|' "$PKGBUILD"
 
-# Inject patching into prepare()
-sed -i '/^prepare()/,/^}/ s/^}/  for pr in 41260 41414 41429 41491; do\n    patch -Np1 -i "$srcdir\/pr-${pr}.patch"\n  done\n}/' "$PKGBUILD"
+# Add pkgver() for VCS builds if not present
+if ! grep -q '^pkgver()' "$PKGBUILD"; then
+cat << 'EOF' >> "$PKGBUILD"
 
+pkgver() {
+  cd systemd
+  git describe --tags --long | sed 's/^v//;s/-/./g'
+}
+EOF
+fi
 
-# Build with sysupdated enabled
+# Fix prepare() path (git source = "systemd/")
+sed -i 's|cd "$pkgname-$pkgver"|cd systemd|' "$PKGBUILD"
+
+# Build
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm \
     --mflags="--skippgpcheck --skipchecksums --nocheck" systemd
