@@ -86,9 +86,49 @@ cd -
 paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --skipchecksums" shadow
 # --------------------------------------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------------------------------------
+# TODO: Remove once the systemd PRs #41260, #41414, #41429, #41491 are packaged in Arch.
+git clone https://gitlab.archlinux.org/archlinux/packaging/packages/systemd "$pkgbuildsDir/systemd"
+
+if systemd-repart --help 2>/dev/null | grep -q -- '--el-torito'; then
+    echo "Remove patches for systemd."
+    exit 1
+fi
+
+cd "$pkgbuildsDir/systemd" && git checkout 486424a5bddceb661331599928d1046e83607b7f && cd -
+
+# Download the patch files from the PRs into the patches dir
+for pr in 41260 41414 41429 41491; do
+    curl --location --output "$pkgbuildsDir/systemd/pr-${pr}.patch" \
+        "https://github.com/systemd/systemd/pull/${pr}.patch"
+done
+
+# Add the patches to the PKGBUILD source array
+for pr in 41260 41414 41429 41491; do
+    sed -i "/^source=(/a \  'pr-${pr}.patch::https://github.com/systemd/systemd/pull/${pr}.patch'" \
+        "$pkgbuildsDir/systemd/PKGBUILD"
+done
+
+# Add patch() function or append to existing one
+if grep -q '^patch()' "$pkgbuildsDir/systemd/PKGBUILD"; then
+    # Append before the closing brace of patch()
+    sed -i '/^patch()/,/^}/ s/^}/  for pr in 41260 41414 41429 41491; do patch -Np1 -i "..\/pr-${pr}.patch"; done\n}/' \
+        "$pkgbuildsDir/systemd/PKGBUILD"
+else
+    cat <<- 'PATCH_FUNC' >> "$pkgbuildsDir/systemd/PKGBUILD"
+patch() {
+  cd "$pkgname-$pkgver"
+  for pr in 41260 41414 41429 41491; do
+    patch -Np1 -i "../pr-${pr}.patch"
+  done
+}
+PATCH_FUNC
+fi
+
 # Override the systemd build to enable sysupdated (--nocheck because the tests like to fail for no reason)
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
-    paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --nocheck" systemd
+    paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --skipchecksums --nocheck" systemd
+# --------------------------------------------------------------------------------------------------------
 
 # Remove old iptables so it won't conflict with iptables-nft below
 sudo pacman --remove --nodeps --nodeps --noconfirm iptables
