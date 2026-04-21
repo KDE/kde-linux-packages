@@ -94,10 +94,18 @@ fi
 # Fix prepare() path
 sed -i 's|cd "$pkgname-$pkgver"|cd systemd|' "$PKGBUILD"
 
-# Build
+
+# Build only, don't install
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm \
-    --mflags="--skippgpcheck --skipchecksums --nocheck" systemd
+    --mflags="--skippgpcheck --skipchecksums --nocheck" \
+    --noupgrademenu systemd || true
+
+# Install all built split packages together in one transaction
+builtPkgs=$(find "$pkgbuildsDir/systemd" -name '*.pkg.tar.zst' ! -name '*-debug-*')
+if [ -n "$builtPkgs" ]; then
+    sudo pacman -U --noconfirm --needed $builtPkgs
+fi
 
 # --------------------------------------------------------------------------------------------------------
 
