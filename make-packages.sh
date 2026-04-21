@@ -78,7 +78,7 @@ fi
 PKGBUILD="$pkgbuildsDir/systemd/PKGBUILD"
 
 # Replace source with git + pinned commit
-sed -i 's|^source=.*|source=("git+https://github.com/systemd/systemd#commit=2299a37e28249edd06fc66bfda2ad36106cf69da")|' "$PKGBUILD"
+perl -i -0pe 's/^source=\(.*?\)/source=("git+https:\/\/github.com\/systemd\/systemd#commit=2299a37e28249edd06fc66bfda2ad36106cf69da")/ms' "$PKGBUILD"
 
 # Add pkgver() for VCS builds if not present
 if ! grep -q '^pkgver()' "$PKGBUILD"; then
