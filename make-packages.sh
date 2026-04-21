@@ -68,6 +68,7 @@ packages+=" ${AUR_TARGETS[*]}"
 
 rm -rf "$pkgbuildsDir/systemd"
 git clone https://gitlab.archlinux.org/archlinux/packaging/packages/systemd "$pkgbuildsDir/systemd"
+cd "$pkgbuildsDir/systemd" | git checkout 486424a5bddceb661331599928d1046e83607b7f | cd -
 
 # Safety check: if feature already exists, stop
 if systemd-repart --help 2>/dev/null | grep -q -- '--el-torito'; then
