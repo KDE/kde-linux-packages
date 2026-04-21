@@ -70,18 +70,12 @@ rm -rf "$pkgbuildsDir/systemd"
 git clone https://gitlab.archlinux.org/archlinux/packaging/packages/systemd "$pkgbuildsDir/systemd"
 cd "$pkgbuildsDir/systemd" | git checkout 486424a5bddceb661331599928d1046e83607b7f | cd -
 
-# Safety check: if feature already exists, stop
-if systemd-repart --help 2>/dev/null | grep -q -- '--el-torito'; then
-    echo "systemd already supports --el-torito, skipping patching."
-    exit 1
-fi
-
 PKGBUILD="$pkgbuildsDir/systemd/PKGBUILD"
 
-# Replace source with git + pinned commit
+# Replace source with pinned commit
 perl -i -pe 's|https://github\.com/systemd/systemd/archive/v[\d.]+\.tar\.gz|git+https://github.com/systemd/systemd#commit=2299a37e28249edd06fc66bfda2ad36106cf69da|' "$PKGBUILD"
 
-# Add pkgver() for VCS builds if not present
+# Add pkgver() for VCS build
 if ! grep -q '^pkgver()' "$PKGBUILD"; then
 cat << 'EOF' >> "$PKGBUILD"
 
@@ -96,7 +90,7 @@ fi
 sed -i 's|cd "$pkgname-$pkgver"|cd systemd|' "$PKGBUILD"
 
 
-# Build only, don't install
+# Build only, don't install yet
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm \
     --mflags="--skippgpcheck --skipchecksums --nocheck" \
