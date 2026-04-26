@@ -234,6 +234,12 @@ if REPO_METADATA_BRANCH != "master":
 
 # get project info from kde-builder
 result = run_kde_builder(["--query", "project-info"] + KDE_BUILDER_TARGETS)
+# kde-builder may print informational lines (e.g. "* Removing ...") to stdout
+# alongside the YAML. Strip non-YAML lines that would confuse the parser.
+result = "\n".join(
+    line for line in result.splitlines()
+    if not line.lstrip().startswith("* ")
+)
 project_infos = yaml.safe_load(result)
 if not project_infos or len(project_infos) == 0:
     raise Exception(f"Error parsing project info: {result}")
