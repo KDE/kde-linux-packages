@@ -31,7 +31,7 @@ AUR_TARGETS=(
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
 
-PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py
+PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py --branch-group "${KDE_BRANCH_GROUP:-latest-kf6}"
 
 # Assume all directories in pkgbuildsDir are packages to build
 # We have to do this because some targets like `workspace` are

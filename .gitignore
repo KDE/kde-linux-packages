@@ -8,3 +8,4 @@ logs
 artifacts
 aur-paru
 ccache
+__pycache__/

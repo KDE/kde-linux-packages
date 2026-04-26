@@ -14,6 +14,9 @@ variables:
   REPO_METADATA_BRANCH:
     value: "master"
     description: "Branch of sysadmin/repo-metadata to use"
+  KDE_BRANCH_GROUP:
+    value: "latest-kf6"
+    description: "kde-builder branch group: latest-kf6 (master) or stable-kf6 (latest release)"
 
 build:
   stage: build
@@ -28,7 +31,7 @@ build:
       aud: https://tokens.kde.org
   script:
     - sudo ./bootstrap.sh
-    - ./make-packages.sh
+    - KDE_BRANCH_GROUP="${KDE_BRANCH_GROUP}" ./make-packages.sh
   artifacts:
     untracked: false
     when: always

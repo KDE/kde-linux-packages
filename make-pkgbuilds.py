@@ -3,6 +3,7 @@
 # SPDX-FileCopyrightText: 2024 Lasath Fernando <devel@lasath.org>
 
 # kde-builder should already be in the path
+import argparse
 import datetime
 import logging.config
 import multiprocessing
@@ -95,6 +96,19 @@ EXTRA_CMAKE_OPTIONS = [
 CI_PROJECT_DIR = os.getenv("CI_PROJECT_DIR", default=".")
 PKGBUILDS_DIR = os.getenv("PKGBUILDS_DIR", default=f"{CI_PROJECT_DIR}/pkgbuilds")
 
+parser = argparse.ArgumentParser()
+parser.add_argument(
+    "--branch-group",
+    default=os.getenv("KDE_BRANCH_GROUP", "latest-kf6"),
+    choices=["latest-kf6", "stable-kf6"],
+    help="kde-builder branch group to use (default: latest-kf6)",
+)
+args = parser.parse_args()
+
+BRANCH_GROUP: str = args.branch_group
+IS_STABLE = BRANCH_GROUP == "stable-kf6"
+logger.info(f"Using branch group: {BRANCH_GROUP} (stable={IS_STABLE})")
+
 
 def package_name(project: str):
     # Since we use third party projects from repos,
@@ -102,6 +116,8 @@ def package_name(project: str):
     if project in third_party_projects:
         return project
 
+    if IS_STABLE:
+        return f"kde-banana-{project}"
     return f"kde-banana-{project}-git"
 
 
@@ -170,6 +186,14 @@ with open(extra_projects_config_file, "r") as f:
 
 with open(kde_builder_config_file_path, "a") as base:
     base.write(extra_projects_content)
+
+# Inject branch-group into the kde-builder config if not the default
+if BRANCH_GROUP != "latest-kf6":
+    with open(kde_builder_config_file_path, "r") as f:
+        config = yaml.safe_load(f)
+    config.setdefault("global", {})["branch-group"] = BRANCH_GROUP
+    with open(kde_builder_config_file_path, "w") as f:
+        yaml.dump(config, f, default_flow_style=False)
 
 # Parse branch overrides from extra-projects.yaml.
 # kde-builder's --query project-info does not reflect branch overrides for
@@ -268,9 +292,16 @@ for project, info in project_infos.items():
 
     options = ["!lto"] # nothing but trouble with rust
 
-    branch_fragment = (
-        f"#branch={branch_overrides[project]}" if project in branch_overrides else ""
-    )
+    # Determine which branch to use in the source URL.
+    # Explicit overrides from extra-projects.yaml take priority,
+    # then the branch from kde-builder's project-info (reflects branch-group),
+    # and finally no fragment (defaults to remote HEAD).
+    if project in branch_overrides:
+        branch_fragment = f"#branch={branch_overrides[project]}"
+    elif "branch" in info and info["branch"]:
+        branch_fragment = f"#branch={info['branch']}"
+    else:
+        branch_fragment = ""
 
     pkgbuild = f"""
 # Maintainer: KDE Community <http://www.kde.org>
