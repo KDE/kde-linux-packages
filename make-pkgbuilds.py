@@ -167,10 +167,14 @@ def run_kde_builder(args):
         text=True,
     )
 
-    if process.stderr or process.returncode != 0:
+    if process.returncode != 0:
         raise Exception(
-            f"Error running kde-builder ({process.returncode}): {process.stdout}"
+            f"Error running kde-builder ({process.returncode}):\n"
+            f"stdout: {process.stdout}\nstderr: {process.stderr}"
         )
+
+    if process.stderr:
+        logger.warning(f"kde-builder stderr: {process.stderr}")
 
     return process.stdout
 
@@ -187,13 +191,20 @@ with open(extra_projects_config_file, "r") as f:
 with open(kde_builder_config_file_path, "a") as base:
     base.write(extra_projects_content)
 
-# Inject branch-group into the kde-builder config if not the default
+# Inject branch-group into the kde-builder config if not the default.
+# The generated config already has "branch-group: latest-kf6" under global,
+# so we do a targeted text replacement to avoid corrupting the kde-builder
+# config format (which yaml.dump would do).
 if BRANCH_GROUP != "latest-kf6":
     with open(kde_builder_config_file_path, "r") as f:
-        config = yaml.safe_load(f)
-    config.setdefault("global", {})["branch-group"] = BRANCH_GROUP
+        config_text = f.read()
+    config_text = config_text.replace(
+        "  branch-group: latest-kf6",
+        f"  branch-group: {BRANCH_GROUP}",
+        1,
+    )
     with open(kde_builder_config_file_path, "w") as f:
-        yaml.dump(config, f, default_flow_style=False)
+        f.write(config_text)
 
 # Parse branch overrides from extra-projects.yaml.
 # kde-builder's --query project-info does not reflect branch overrides for

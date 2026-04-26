@@ -14,11 +14,8 @@ variables:
   REPO_METADATA_BRANCH:
     value: "master"
     description: "Branch of sysadmin/repo-metadata to use"
-  KDE_BRANCH_GROUP:
-    value: "latest-kf6"
-    description: "kde-builder branch group: latest-kf6 (master) or stable-kf6 (latest release)"
 
-build:
+.build-common:
   stage: build
   tags:
     - LargeVM
@@ -38,3 +35,13 @@ build:
     access: all
     paths:
       - ${CI_PROJECT_DIR}/logs
+
+build:
+  extends: .build-common
+  variables:
+    KDE_BRANCH_GROUP: latest-kf6
+
+build-stable:
+  extends: .build-common
+  variables:
+    KDE_BRANCH_GROUP: stable-kf6

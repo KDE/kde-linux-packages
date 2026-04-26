@@ -39,7 +39,7 @@ PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py --branch-group "${KDE_BRANCH_G
 packages=$(basename -a $pkgbuildsDir/kde-banana-*)
 
 # Install already built packages in parallel for a speedup (except debug packages)
-alreadyBuiltPackages="$(find $pkgbuildsDir -name '*.pkg.tar.zst' | grep -v -- '-git-debug-' || true)"
+alreadyBuiltPackages="$(find $pkgbuildsDir -name '*.pkg.tar.zst' | grep -v -- '-debug-' || true)"
 echo "Reusing already built packages: $alreadyBuiltPackages"
 if [ -n "$alreadyBuiltPackages" ]; then
     sudo pacman --upgrade --noconfirm --needed $alreadyBuiltPackages
@@ -98,22 +98,31 @@ paru --sync --needed --noconfirm $packages
 
 #### Create arch repositories to be published as artifacts
 
+# Use a separate repo name and directory suffix for stable builds
+if [ "${KDE_BRANCH_GROUP:-latest-kf6}" = "stable-kf6" ]; then
+    REPO_NAME="kde-linux-stable"
+    REPO_SUFFIX="-stable"
+else
+    REPO_NAME="kde-linux"
+    REPO_SUFFIX=""
+fi
+
 artifactsDir=$CI_PROJECT_DIR/artifacts
-packagesDir=$artifactsDir/packages
-packagesDebugDir=$artifactsDir/packages-debug
+packagesDir=$artifactsDir/packages${REPO_SUFFIX}
+packagesDebugDir=$artifactsDir/packages${REPO_SUFFIX}-debug
 
 # Move the debug packages first so regular packages are easier to find
 mkdir -p $packagesDebugDir
 mv $pkgbuildsDir/*/*-debug-*.pkg.tar.zst $packagesDebugDir
-repo-add $packagesDebugDir/kde-linux-debug.db.tar.gz $packagesDebugDir/*.pkg.tar.zst
+repo-add $packagesDebugDir/${REPO_NAME}-debug.db.tar.gz $packagesDebugDir/*.pkg.tar.zst
 
 mkdir -p $packagesDir
 mv $pkgbuildsDir/*/*.pkg.tar.zst $packagesDir
-repo-add $packagesDir/kde-linux.db.tar.gz $packagesDir/*.pkg.tar.zst
+repo-add $packagesDir/${REPO_NAME}.db.tar.gz $packagesDir/*.pkg.tar.zst
 
 # aurutils *really* doesn't like it if the repo is not in pacman.conf
 sudo tee -a /etc/pacman.conf <<- EOF
-[kde-linux]
+[${REPO_NAME}]
 SigLevel = Never
 Server = file://$packagesDir
 EOF
@@ -130,7 +139,10 @@ CDN_UPLOAD_URL="$CDN_UPLOAD_ACCOUNT:/srv/www/cdn.kde.org/kde-linux/packaging"
 
 rsync --archive --verbose --compress --delete --delete-excluded \
     --rsh="ssh -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
-    $artifactsDir/ $CDN_UPLOAD_URL
+    $packagesDir/ $CDN_UPLOAD_URL/packages${REPO_SUFFIX}/
+rsync --archive --verbose --compress --delete --delete-excluded \
+    --rsh="ssh -o StrictHostKeyChecking=no -i $CDN_UPLOAD_KEY" \
+    $packagesDebugDir/ $CDN_UPLOAD_URL/packages${REPO_SUFFIX}-debug/
 
 cd
 git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
@@ -148,7 +160,8 @@ pip install minio --break-system-packages
 # Note that --delete technically allows for a race condition between packages and imaging pipeline, the hope is that the
 # chance is so small that we don't need to care. Should this become a problem we'll need a bespoke vacuuming logic to clean
 # up packages older than X days instead.
-"$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
+# Upload to a flavor-specific subpath so stable and git builds don't clobber each other.
+"$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/" --remote "storage.kde.org/kde-linux-packages/testing${REPO_SUFFIX}/" --verbose
 
 cd "$CI_PROJECT_DIR"
 # Try to prevent the cleanup from erroring out on unexpected content.
