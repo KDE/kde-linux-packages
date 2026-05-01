@@ -37,7 +37,6 @@ KDE_BUILDER_TARGETS = [
     "kpmcore",
     "kunifiedpush",
     "kup",
-    "kwalletmanager",
     "package-compatibility-helper",
     "partitionmanager",
     "pulseaudio-qt",
