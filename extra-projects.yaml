@@ -22,3 +22,7 @@ override plasma-login-manager:
 # Kapsule is only enabled for KDE Linux because it's still experimental
 override konsole:
     cmake-options: -DWITH_KAPSULE=ON
+
+# This allows easy testing of the QtWidgets output of Union
+override union:
+    cmake-options: -DBUILD_OUTPUT_QTWIDGETS=ON
