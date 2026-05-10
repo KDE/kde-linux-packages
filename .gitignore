@@ -6,5 +6,7 @@ pacman-cache
 pkgbuilds
 logs
 artifacts
-aur-paru
+tree/
+upload/
+spaghetti.json
 ccache
