@@ -5,14 +5,14 @@ FROM archlinux:latest
 
 # Set environment variables
 ARG PROJECT_DIR
-ARG PARALLELL_DOWNLOADS=50
+ARG PARALLEL_DOWNLOADS=50
 ARG BUILD_DATE
 
 # Copy the .env file if needed
 # COPY .env $PROJECT_DIR/.env
 
 # Enable parallel downloads for more speed
-RUN sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /etc/pacman.conf && \
+RUN sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLEL_DOWNLOADS/" /etc/pacman.conf && \
     sed -i 's/NoProgressBar//' /etc/pacman.conf
 
 RUN echo "Server = https://mirror.rackspace.com/archlinux/\$repo/os/\$arch" > /etc/pacman.d/mirrorlist

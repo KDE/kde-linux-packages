@@ -5,7 +5,7 @@
 set -eux
 
 # Set environment variables
-export PARALLELL_DOWNLOADS=50
+export PARALLEL_DOWNLOADS=50
 export ARTIFACTS_DIR="artifacts"
 export MIRRORLIST=/etc/pacman.d/mirrorlist
 
@@ -13,7 +13,7 @@ export MIRRORLIST=/etc/pacman.d/mirrorlist
 cp /etc/pacman.conf.nolinux /etc/pacman.conf
 
 # Enable parallel downloads for more speed
-sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLELL_DOWNLOADS/" /etc/pacman.conf
+sed -i "s/ParallelDownloads = 5/ParallelDownloads = $PARALLEL_DOWNLOADS/" /etc/pacman.conf
 sed -i 's/NoProgressBar//' /etc/pacman.conf
 
 [ -d artifacts ] || mkdir artifacts
