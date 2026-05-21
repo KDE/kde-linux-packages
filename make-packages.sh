@@ -62,30 +62,6 @@ packages+=" ${AUR_TARGETS[*]}"
 
 # Paru will build an install the packages in the correct order
 
-# --------------------------------------------------------------------------------------------------------
-# TODO: Remove once the Arch Package is updated.
-git clone https://gitlab.archlinux.org/archlinux/packaging/packages/shadow "$pkgbuildsDir/shadow"
-cd "$pkgbuildsDir/shadow"
-git checkout 7f67146c84bcbb8a8d85fccb9db80e5df520f1c1
-
-# Check if shadow has been updated in Arch
-# check for the actual feature
-if useradd -D 2>/dev/null | grep -q '^BTRFS_SUBVOLUME_HOME='; then
-    echo "ERROR: BTRFS_SUBVOLUME_HOME already present in useradd defaults. Remove workaround."
-    exit 1
-fi
-
-# Copy the patches into the directory
-cp "$CI_PROJECT_DIR/patches/0004-useradd-support-btrfs.patch" .
-
-# Add the patches to the source array (just the filenames)
-sed -i "/^source=(/a \  '0004-useradd-support-btrfs.patch'" PKGBUILD
-
-cd -
-
-paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --skipchecksums" shadow
-# --------------------------------------------------------------------------------------------------------
-
 # Override the systemd build to enable sysupdated (--nocheck because the tests like to fail for no reason)
 MESON_EXTRA_CONFIGURE_OPTIONS=-Dsysupdated=enabled \
     paru --pkgbuilds --sync --noconfirm --mflags="--skippgpcheck --nocheck" systemd
