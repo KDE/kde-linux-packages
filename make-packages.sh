@@ -24,8 +24,6 @@ cd ..
 # NOTE: refresh twice forces a refresh, this is to prevent cache timing confusions causing random 404 errors
 sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 
-AUR_TARGETS=()
-
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
 
 PKGBUILDS_DIR="$pkgbuildsDir" ./make-pkgbuilds.py
@@ -50,12 +48,6 @@ cat <<- EOF >> $HOME/.config/paru/paru.conf
 [kde-linux]
 Path = $pkgbuildsDir
 EOF
-
-for package in "${AUR_TARGETS[@]}"; do
-    rm -rf "${pkgbuildsDir:?}/$package"
-    git clone --branch "$package" --single-branch https://github.com/archlinux/aur.git "$pkgbuildsDir/$package"
-done
-packages+=" ${AUR_TARGETS[*]}"
 
 # Paru will build an install the packages in the correct order
 
