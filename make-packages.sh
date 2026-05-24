@@ -24,10 +24,7 @@ cd ..
 # NOTE: refresh twice forces a refresh, this is to prevent cache timing confusions causing random 404 errors
 sudo pacman --sync --refresh --refresh --sysupgrade --noconfirm
 
-AUR_TARGETS=(
-    # TTY Screenreader
-    fenrir-git
-)
+AUR_TARGETS=()
 
 pkgbuildsDir=$CI_PROJECT_DIR/pkgbuilds
 
