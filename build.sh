@@ -80,7 +80,7 @@ cp "$CI_PROJECT_DIR/artifacts/packages.txt" upload/artifacts/packages.txt
 if [ ! -f /.dockerenv ]; then
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
     CI_UTILITIES_DIR="$PWD/ci-utilities"
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
     cd "$CI_PROJECT_DIR"
     rm --recursive --force upload pkgbuilds
     git clean -dfx --exclude=artifacts
