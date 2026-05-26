@@ -28,10 +28,10 @@ build:
       aud: https://tokens.kde.org
   script:
     - sudo ./bootstrap.sh
-    - ./make-packages.sh
+    - sudo --preserve-env ./build.sh
   artifacts:
     untracked: false
     when: always
     access: all
     paths:
-      - ${CI_PROJECT_DIR}/logs
+      - ${CI_PROJECT_DIR}/artifacts/
