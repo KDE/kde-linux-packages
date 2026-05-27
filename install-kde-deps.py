@@ -97,13 +97,13 @@ def main():
     install_arch(list(set(builddeps + rundeps)))
     clear_package_cache()
 
-    # Write all deps (runtime + build) for the Images Pipeline to consume via mkosi Packages=.
-    alldeps = sorted(set(builddeps + rundeps))
+    # Write only runtime deps for the Images Pipeline to consume via mkosi Packages=.
+    alldeps = sorted(set(rundeps))
     deps_path = os.path.join(CI_PROJECT_DIR, "artifacts", "packages.txt")
     os.makedirs(os.path.dirname(deps_path), exist_ok=True)
     with open(deps_path, "w") as f:
         f.write("\n".join(alldeps) + "\n")
-    logger.info(f"Wrote {len(alldeps)} deps to {deps_path}")
+    logger.info(f"Wrote {len(alldeps)} runtime deps to {deps_path}")
 
     open(DEPS_SENTINEL, "w").close()
 
