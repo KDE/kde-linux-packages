@@ -76,6 +76,9 @@ tar --directory=tree/install --create \
 
 # Copy packages list artifact
 cp "$CI_PROJECT_DIR/artifacts/packages.txt" upload/artifacts/packages.txt
+# and the build_repo marker so the images pipeline uses the same mirror version
+mkdir --parents upload/repo
+cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 
 if [ ! -f /.dockerenv ]; then
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
