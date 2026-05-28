@@ -162,11 +162,6 @@ override discover:
 override plasma-desktop:
     cmake-options: -DBUILD_KCM_TOUCHPAD_X11=OFF -DBUILD_KCM_MOUSE_X11=OFF
 
-# We want to trial the Union style in KDE Linux before general availability
-# Needs -DBUILD_QT5=OFF to avoid overriding the override for this in repo-metadata
-override plasma-integration:
-    cmake-options: -DDEFAULT_UNION_STYLE=ON -DBUILD_QT5=OFF
-
 # Different for KDE Linux: we don't include the X11 session.
 override plasma-workspace:
     cmake-options: -DWITH_X11_SESSION=OFF
@@ -177,7 +172,3 @@ override plasma-login-manager:
 # Kapsule is only enabled for KDE Linux because it's still experimental
 override konsole:
     cmake-options: -DWITH_KAPSULE=ON
-
-# This allows easy testing of the QtWidgets output of Union
-override union:
-    cmake-options: -DBUILD_OUTPUT_QTWIDGETS=ON
