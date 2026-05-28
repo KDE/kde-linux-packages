@@ -80,7 +80,7 @@ cp "$CI_PROJECT_DIR/artifacts/packages.txt" upload/artifacts/packages.txt
 mkdir --parents upload/repo
 cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 
-if [ ! -f /.dockerenv ]; then
+if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
     CI_UTILITIES_DIR="$PWD/ci-utilities"
     "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
