@@ -115,6 +115,9 @@ global:
   # We use KOnlineAccounts instead of kaccounts-integration
   - kaccounts-integration
 
+  # Google killed it
+  - kio-gdrive
+
   # Work around https://invent.kde.org/sdk/kde-builder/-/issues/197
   - kde-vdg-extras
 
