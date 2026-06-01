@@ -1,0 +1,38 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index d95f42e7..8e1412fd 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -216,12 +216,6 @@ set(PKGCONFIG_INSTALL_PREFIX "${QCA_LIBRARY_INSTALL_DIR}/pkgconfig" CACHE PATH "
+ 
+ normalize_path(QCA_PREFIX_INSTALL_DIR)
+ 
+-if(OSX_FRAMEWORK)
+-  set(QCA_FULL_INCLUDE_INSTALL_DIR "${QCA_LIBRARY_INSTALL_DIR}/${QCA_LIB_NAME}.framework/Headers")
+-else()
+-  set(QCA_FULL_INCLUDE_INSTALL_DIR "${QCA_INCLUDE_INSTALL_DIR}/QtCrypto")
+-endif()
+-
+ # check for oportunity to use relative paths
+ option(USE_RELATIVE_PATHS "Try to make relocatable package")
+ 
+@@ -242,6 +236,7 @@ foreach(PATH QCA_PLUGINS_INSTALL_DIR
+   string(FIND "${${PATH}}" "${QCA_PREFIX_INSTALL_DIR}/" POS)
+   if(NOT "${POS}" STREQUAL "0")
+     set(USE_RELATIVE_PATHS OFF)
++    message(FATAL_ERROR "this will install the wrong thing now" ::: "${${PATH}}" ::: "${QCA_PREFIX_INSTALL_DIR}/")
+   endif()
+ endforeach()
+ 
+@@ -285,6 +280,12 @@ else()
+   set(CRYPTO_PRF_RELATIVE_PATH "")
+ endif()
+ 
++if(OSX_FRAMEWORK)
++  set(QCA_FULL_INCLUDE_INSTALL_DIR "${QCA_LIBRARY_INSTALL_DIR}/${QCA_LIB_NAME}.framework/Headers")
++else()
++  set(QCA_FULL_INCLUDE_INSTALL_DIR "${QCA_INCLUDE_INSTALL_DIR}/QtCrypto")
++endif()
++
+ if(DEVELOPER_MODE)
+   add_definitions(-DDEVELOPER_MODE)
+ 

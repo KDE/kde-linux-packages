@@ -27,6 +27,18 @@ global:
   # between system and source-built stuff.
   install-dir: /usr/
 
+  # BuildStream installs this element into /buildstream-install while
+  # kde-builder configures projects with /usr as their install prefix. Make
+  # dependencies built earlier in this same kde-builder run visible to later
+  # projects, while keeping staged system dependencies visible under /usr.
+  set-env:
+    PKG_CONFIG_PATH: /buildstream-install/usr/lib/pkgconfig:/buildstream-install/usr/lib/x86_64-linux-gnu/pkgconfig:/buildstream-install/usr/share/pkgconfig:/usr/lib/pkgconfig:/usr/lib/x86_64-linux-gnu/pkgconfig:/usr/share/pkgconfig
+    PATH: /buildstream-install/usr/bin:/usr/bin:/bin
+    LD_LIBRARY_PATH: /buildstream-install/usr/lib:/buildstream-install/usr/lib/x86_64-linux-gnu
+    XDG_DATA_DIRS: /buildstream-install/usr/share:/usr/share
+    QML_IMPORT_PATH: /buildstream-install/usr/lib/qml:/usr/lib/qml
+    QML2_IMPORT_PATH: /buildstream-install/usr/lib/qml:/usr/lib/qml
+
   # Build RelWithDebInfo because that's our standard thing
   # Use system Qt paths to prevent issues
   # Don't build docs because we don't ship them in KDE Linux
@@ -47,6 +59,8 @@ global:
     -DCMAKE_C_COMPILER_LAUNCHER=ccache
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
     -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
+    -DCMAKE_PREFIX_PATH=/buildstream-install/usr
+    -DCMAKE_FIND_ROOT_PATH=/buildstream-install
 
   # kde-builder sets 2 options which is used in options like make-options or set-env
   # to help manage the number of compile jobs that happen during a build:
@@ -156,9 +170,28 @@ include ${build-configs-dir}/kde6.yaml: ""
 override discover:
     cmake-options: -DBUILD_SystemdSysupdateBackend=ON
 
+override kdoctools:
+    cmake-options: -DDocBookXSL_DIR=/usr/share/xml/docbook/xml/xsl-stylesheets/ -DDTD_PATH_LIST=/usr/share/xml/docbook/xml-dtd/4.5/
+
+# qca: have to specify all of these directories because USE_RELATIVE_PATHS doesn't affect includes
+override qca:
+    cmake-options: >
+      -DUSE_RELATIVE_PATHS=ON
+      -DBUILD_WITH_QT6=ON
+
 override plasma-login-manager:
     cmake-options: -DPAM_OS_CONFIGURATION=kde-linux
 
 # Kapsule is only enabled for KDE Linux because it's still experimental
 override konsole:
     cmake-options: -DWITH_KAPSULE=ON
+
+override kdeconnect-kde:
+    cmake-options: -DWITH_X11=OFF
+
+override appstream:
+    meson-options: --libdir=lib/@GNU_TRIPLET@ -Dqt=true -Ddocs=false -Dapidocs=false -Dman=false
+
+override drkonqi:
+    cmake-options: -DWITH_PYTHON_VENDORING=OFF
+
