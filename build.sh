@@ -1,66 +1,77 @@
 #!/usr/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
 set -eux
 
-mkdir -p /builder
+export CI_PROJECT_DIR="${CI_PROJECT_DIR:-$PWD}"
+export KDECI_BUILD="${KDECI_BUILD:-FALSE}"
 
-if [ -f /.dockerenv ]; then
-    export CI_COMMIT_SHORT_SHA=abcSHAdef
-    export CI_JOB_ID=123JOBID456
-    export CI_PROJECT_DIR=/work
+rm -rf tree upload
+
+HOST_PID=""
+if [ "$KDECI_BUILD" = "TRUE" ]; then
+    # Set up cache overrides
+    git clone --depth=1 https://invent.kde.org/sitter/kde-buildstream.git
+    mkdir --parents ~/.config
+    cp kde-buildstream/buildstream.conf.writable ~/.config/buildstream.conf
+    set +x
+    echo "$BST_CACHE_TOKEN" > /tmp/bst-cache-token
+    set -x
+
+    # Start a reverse proxy from a unix socket to the real ccache server.
+    # This is a bit complicated because buildstream really doesn't want to let us poke into the sandbox.
+    # We'll create a host dir in tmp. This will be mounted into the sandbox via a somewhat naughty bst plugin.
+    # Inside the sandbox we stand up another reverse proxy so ccache knows this is http.
+    # Basically
+    #   ccache(sandbox) -> caddy(sandbox) -> socket (mounted) -> caddy(host) -> real.ccache.server
+    #
+    # host does act as a general interaction point in this set up as we also want a way to collect logs from the kde-builder stage anyway.
+    # Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
+    ./host.sh &
+    HOST_PID=$!
 fi
 
-if [ ! -f /.dockerenv ]; then
-    # In CI, pull a warm ccache from object storage to speed up the build.
-    curl --fail https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar \
-        | tar --extract --directory=/builder || true
+function finish {
+    set +e
+    if [ "$HOST_PID" != "" ]; then
+        kill ${HOST_PID} || true
+    fi
+
+    [ -d artifacts ] || mkdir artifacts
+    cp --recursive /tmp/host/kde-builder-logs artifacts/
+    cp --recursive ~/.cache/buildstream/logs artifacts/buildstream-logs
+}
+trap finish EXIT INT ABRT TERM
+
+bst source track kde-linux-payload.bst
+# Make sure most of everything will be in the cache for the imaging pipeline.
+# Bit of a hack until we move things here.
+bst build \
+    kde-buildstream.bst:os/deps.bst \
+    kde-buildstream.bst:os/deps-core.bst \
+    kde-buildstream.bst:os/deps-kde.bst \
+    kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
+    kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
+    kde-buildstream.bst:components/calamares.bst \
+    kde-linux-payload.bst
+
+if [ "$KDECI_BUILD" = "TRUE" ]; then
+    kill ${HOST_PID} || true
 fi
 
-export CCACHE_DIR="/builder/ccache"
-ccache --set-config=max_size=50G
+[ -d artifacts ] || mkdir artifacts
 
-export KDE_LINUX_INSTALL_DESTDIR="$PWD/tree/install"
+# Only ship the KDE payload. Build dependencies are provided by the image pipeline.
+bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install
 
-# Wrap ninja with the strip shim so debug info is stripped during install.
-if [ ! -f /usr/bin/ninja.orig ]; then
-    mv /usr/bin/ninja /usr/bin/ninja.orig
-    cp strip/ninja /usr/bin/ninja
-fi
-
-rm -rf tree
-export CXXFLAGS="-ffile-prefix-map=/builder/src/=/usr/src/debug/"
-
-mkdir -p "$HOME/.config"
-cp kde-builder.yaml.in "$HOME/.config/kde-builder.yaml"
-kde-builder --generate-config
-kde-builder --metadata-only
-
-# ------------------------------------------------------
-# WARNING! THIS IS DISTRO-SPECIFIC
-python ./install-kde-deps.py
-# ------------------------------------------------------
-
-python ./make-kde-tarball.py
-
-RPM_BUILD_ROOT=$PWD/tree/install \
-RPM_BUILD_DIR=/builder/build \
-RPM_PACKAGE_NAME=kde-linux \
-    find-debuginfo \
-        -m -i -v \
-        --jobs "$(nproc)" \
-        --unique-debug-src-base "$CI_COMMIT_SHORT_SHA-$CI_JOB_ID.x86-64" \
-        --unique-debug-suffix "-$CI_COMMIT_SHORT_SHA-$CI_JOB_ID.x86-64" \
-        "/builder/build"
+mkdir --parents upload/artifacts
+mkdir --parents upload/repo
 
 mkdir -p tree/debug/usr/{lib,src}/
 mv tree/install/usr/lib/debug tree/debug/usr/lib/
 mv tree/install/usr/src/debug tree/debug/usr/src/
 
-rm -rf upload
-mkdir -p upload/artifacts upload/ccache
-
-tar --directory=/builder --create --file=upload/ccache/ccache.tar ccache
 tar --directory=tree/debug --create --file=upload/artifacts/debug.tar .
 
 mkfs.erofs -zzstd -C65536 -Efragments,ztailpacking --tar=f \
@@ -69,21 +80,22 @@ mkfs.erofs -zzstd -C65536 -Efragments,ztailpacking --tar=f \
 zstd --rm --threads="$(nproc)" upload/artifacts/debug.tar \
     -o upload/artifacts/debug.tar.zst
 
-# Only ship kde-builder output.
-# The Images Pipeline uses packages.txt to install runtime deps via mkosi.
 tar --directory=tree/install --create \
     --file=upload/artifacts/install.tar.zst --zstd .
 
-# Copy packages list artifact
-cp "$CI_PROJECT_DIR/artifacts/packages.txt" upload/artifacts/packages.txt
-# and the build_repo marker so the images pipeline uses the same mirror version
-mkdir --parents upload/repo
-cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
+S3_REMOTE="storage.kde.org/kde-linux-packages/testing/"
 
-if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
+if [ "${CI_COMMIT_BRANCH:-}" != "master" ]; then
+    S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/testing"
+fi
+
+if [ ! -f /.dockerenv ]; then
+    # Keep the images pipeline on the same KDE Linux package mirror version.
+    cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
+
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
     CI_UTILITIES_DIR="$PWD/ci-utilities"
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote "$S3_REMOTE" --verbose
     cd "$CI_PROJECT_DIR"
     rm --recursive --force upload pkgbuilds
     git clean -dfx --exclude=artifacts

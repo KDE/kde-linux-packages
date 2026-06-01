@@ -10,3 +10,5 @@ tree/
 upload/
 spaghetti.json
 ccache
+.bst/
+__pycache__

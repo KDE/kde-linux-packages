@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
+
+http://localhost:12312  {
+	bind unix//tmp/host/ccache.sock
+	reverse_proxy https://ccache.cache.kde-linux.haraldsitter.eu {
+		header_up Authorization "Bearer {env.CCACHE_TOKEN}"
+	}
+}
