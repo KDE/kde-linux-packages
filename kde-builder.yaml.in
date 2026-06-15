@@ -33,7 +33,7 @@ global:
   # Don't build Python bindings because we don't yet include their
   #   dependencies out of the box
   # Merge libexec and lib, like the base OS does
-  # Use ccache for everything to further avoid unnecessary work
+  # Use ccache for compilation to further avoid unnecessary work
   cmake-options: >
     -DCMAKE_BUILD_TYPE=RelWithDebInfo
     -DKDE_INSTALL_USE_QT_SYS_PATHS=ON
@@ -45,9 +45,7 @@ global:
     -DBUILD_QCH=OFF
     -DCMAKE_INSTALL_LIBEXECDIR=lib
     -DCMAKE_C_COMPILER_LAUNCHER=ccache
-    -DCMAKE_C_LINKER_LAUNCHER=ccache
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-    -DCMAKE_CXX_LINKER_LAUNCHER=ccache
     -DCMAKE_INTERPROCEDURAL_OPTIMIZATION=OFF
 
   # kde-builder sets 2 options which is used in options like make-options or set-env
