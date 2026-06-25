@@ -8,6 +8,7 @@ targets:
   - dolphin
   - dolphin-plugins
   - ffmpegthumbs
+  - heaptrack
   - kapsule
   - kdeconnect-kde
   - kdegraphics-thumbnailers
