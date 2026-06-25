@@ -3,7 +3,6 @@
 
 targets:
   - ark
-  - audiocd-kio
   - auto-chmod
   - dolphin
   - dolphin-plugins
