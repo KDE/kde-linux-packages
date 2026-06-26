@@ -7,7 +7,7 @@ sources:
 - kind: git_repo
   url: invent:apol/kde-linux.git
   track: work/apol/bst-5
-  ref: d2ef3ef9e00a08e20ba31db1cfbafd21e829d7f3
+  ref: ac54554c4fbd4db54c9d8b7f670ef2f59f03045f
 
 config:
   overrides:
