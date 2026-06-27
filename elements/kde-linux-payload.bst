@@ -1003,7 +1003,6 @@ config:
     --no-metadata
     --no-src
     --refresh-build
-    --no-stop-on-failure
     --source-dir "%{build-root}/prepared-state/src"
     --build-dir "%{build-root}/build"
     --log-dir "%{build-root}/logs"
