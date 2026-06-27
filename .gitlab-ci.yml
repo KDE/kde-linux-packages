@@ -28,7 +28,7 @@ build:
       aud: https://tokens.kde.org
   script:
     - sudo ./bootstrap.sh
-    - sudo --preserve-env ./build.sh
+    - ./build.sh
   artifacts:
     untracked: false
     when: always
