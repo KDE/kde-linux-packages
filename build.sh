@@ -4,6 +4,7 @@
 set -eux
 
 export CI_PROJECT_DIR="${CI_PROJECT_DIR:-$PWD}"
+export KDECI_BUILD="${KDECI_BUILD:-FALSE}"
 
 rm -rf tree upload
 mkdir -p ccache
@@ -11,6 +12,11 @@ mkdir -p ccache
 if [ ! -f /.dockerenv ]; then
     curl --fail https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar \
         | tar --extract --directory=ccache --strip-components=1 || true
+fi
+
+if [ "$KDECI_BUILD" = "TRUE" ]; then
+    mkdir --parents ~/.config
+    cp buildstream.conf ~/.config/buildstream.conf
 fi
 
 bst source track kde-linux-payload.bst
