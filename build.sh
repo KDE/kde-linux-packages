@@ -7,20 +7,26 @@ export CI_PROJECT_DIR="${CI_PROJECT_DIR:-$PWD}"
 export KDECI_BUILD="${KDECI_BUILD:-FALSE}"
 
 rm -rf tree upload
-mkdir -p ccache
-
-if [ ! -f /.dockerenv ]; then
-    curl --fail https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar \
-        | tar --extract --directory=ccache --strip-components=1 || true
-fi
 
 if [ "$KDECI_BUILD" = "TRUE" ]; then
+    # Set up cache overrides
     mkdir --parents ~/.config
     cp buildstream.conf ~/.config/buildstream.conf
+
+    # Start a reverse proxy from a unix socket to the real ccache server.
+    # This is a bit complicated because buildstream really doesn't want to let us poke into the sandbox.
+    # We'll create a host dir in tmp. This will be mounted into the sandbox via a somewhat naughty bst plugin.
+    # Inside the sandbox we stand up another reverse proxy so ccache knows this is http.
+    # Basically
+    #   ccache(sandbox) -> caddy(sandbox) -> socket (mounted) -> caddy(host) -> real.ccache.server
+    #
+    # host does act as a general interaction point in this set up as we also want a way to collect logs from the kde-builder stage anyway.
+    # Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
+    ./host.sh &
 fi
 
-bst source track kde-linux-payload.bst
-bst build kde-linux-payload.bst
+bst --error-lines 1000 source track kde-linux-payload.bst
+bst --error-lines 1000 build kde-linux-payload.bst
 
 # Only ship the KDE payload. Build dependencies are provided by the image pipeline.
 bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install

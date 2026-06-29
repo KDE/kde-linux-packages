@@ -17,7 +17,7 @@ global:
   source-dir: /builder/src  # Directory for downloaded source code
   build-dir: /builder/build  # Directory to build KDE into before installing
   # qt-install-dir: ~/kde/qt  # Directory to install Qt if kde-builder supplies it
-  log-dir: /builder/log  # Directory to write logs into
+  log-dir: /run/host/kde-builder-logs  # Directory to write logs into
 
   # Tell kde-builder to use /usr/ as the configure location, but later
   # we'll actually install everything into ~/kde/ which is the source

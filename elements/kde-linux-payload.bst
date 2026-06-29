@@ -3,7 +3,7 @@
 
 # This brings all of KDE Linux (minus KDE) as a dependency and produces all of KDE dependencies using KDE Builder
 
-kind: manual
+kind: manual-run-host
 
 build-depends:
 - kde-linux.bst:os/deps-kde.bst
@@ -33,9 +33,6 @@ sources:
 - kind: local
   path: qca-relocatable-headers.patch
   directory: kde-linux-payload
-- kind: local
-  path: ccache
-  directory: kde-linux-payload/ccache
 - kind: kde_builder
   ref: 3d0e6e05d5bec7eaea4ff66e14fff655a4908e6cef68862929a5312117dc1b3f
 - kind: cargo2
@@ -974,6 +971,7 @@ sources:
     name: windows-sys
     version: 0.61.2
     sha: ae137229bcbd6cdf0f7b80a31df61766145077ddf49416a728b02cb3921ff3fc
+
 environment:
   HOME: "%{build-root}/home"
   XDG_STATE_HOME: "%{build-root}/prepared-state"
@@ -990,12 +988,13 @@ config:
   build-commands:
   - mkdir -p "%{build-root}/home/.config"
   - sed "s/@GNU_TRIPLET@/%{arch}-linux-gnu/g" kde-linux-payload/kde-builder.yaml.in > "%{build-root}/home/.config/kde-builder.yaml"
-  - mkdir -p "%{build-root}/ccache"
-  - cp -a kde-linux-payload/ccache/. "%{build-root}/ccache/"
-  - rm -f "%{build-root}/ccache/.gitkeep"
-  - ccache --set-config=max_size=50G
-  - patch -d "%{build-root}/prepared-state/src/qca" -p1 < kde-linux-payload/qca-relocatable-headers.patch
+  - ccache --set-config=remote_storage="http://localhost:21321|layout=bazel"
+  - ccache --set-config=remote_only=true
+  - ccache --set-config=log_file=/run/host/ccache.log
+  # make sure the server exists. We detach it so we won't know if it starts up properly.
+  - stat /run/host/caddy
   - >-
+    /run/host/caddy reverse-proxy --from http://localhost:21321 --to unix//run/host/ccache.sock --disable-redirects &
     ./kde-builder
     --rc-file "%{build-root}/home/.config/kde-builder.yaml"
     --no-color
@@ -1007,5 +1006,3 @@ config:
     --build-dir "%{build-root}/build"
     --log-dir "%{build-root}/logs"
     $(sed -n "s/^  - //p" kde-linux-payload/targets.yaml)
-  - mkdir -p "%{install-root}/.kde-linux-payload-cache"
-  - cp -a "%{build-root}/ccache" "%{install-root}/.kde-linux-payload-cache/"
