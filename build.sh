@@ -64,13 +64,19 @@ zstd --rm --threads="$(nproc)" upload/artifacts/debug.tar \
 tar --directory=tree/install --create \
     --file=upload/artifacts/install.tar.zst --zstd .
 
+S3_REMOTE="storage.kde.org/kde-linux-packages/testing/"
+
+if [ "${CI_COMMIT_BRANCH:-}" != "master" ]; then
+    S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/testing"
+fi
+
 if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
     # Keep the images pipeline on the same KDE Linux package mirror version.
     cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
     CI_UTILITIES_DIR="$PWD/ci-utilities"
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote "$S3_REMOTE" --verbose
     cd "$CI_PROJECT_DIR"
     rm --recursive --force upload pkgbuilds
     git clean -dfx --exclude=artifacts
