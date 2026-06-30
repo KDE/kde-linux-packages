@@ -1,6 +1,7 @@
 #!/usr/bin/bash
 # SPDX-License-Identifier: GPL-2.0-only OR GPL-3.0-only OR LicenseRef-KDE-Accepted-GPL
 # SPDX-FileCopyrightText: 2026 Hadi Chokr <hadichokr@icloud.com>
+
 set -eux
 
 export CI_PROJECT_DIR="${CI_PROJECT_DIR:-$PWD}"
@@ -8,6 +9,7 @@ export KDECI_BUILD="${KDECI_BUILD:-FALSE}"
 
 rm -rf tree upload
 
+HOST_PID=""
 if [ "$KDECI_BUILD" = "TRUE" ]; then
     # Set up cache overrides
     mkdir --parents ~/.config
@@ -26,10 +28,20 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     # host does act as a general interaction point in this set up as we also want a way to collect logs from the kde-builder stage anyway.
     # Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
     ./host.sh &
+    HOST_PID=$!
+
+    function finish {
+        kill ${HOST_PID} || true
+    }
+    trap finish EXIT INT ABRT TERM
 fi
 
-bst --error-lines 1000 source track kde-linux-payload.bst
-bst --error-lines 1000 build kde-linux-payload.bst
+bst source track kde-linux-payload.bst
+bst build kde-linux-payload.bst
+
+if [ "$KDECI_BUILD" = "TRUE" ]; then
+    kill ${HOST_PID} || true
+fi
 
 # Only ship the KDE payload. Build dependencies are provided by the image pipeline.
 bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install
@@ -51,7 +63,6 @@ zstd --rm --threads="$(nproc)" upload/artifacts/debug.tar \
 
 tar --directory=tree/install --create \
     --file=upload/artifacts/install.tar.zst --zstd .
-
 
 if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
     # Keep the images pipeline on the same KDE Linux package mirror version.
