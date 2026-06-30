@@ -12,6 +12,9 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     # Set up cache overrides
     mkdir --parents ~/.config
     cp buildstream.conf ~/.config/buildstream.conf
+    set +x
+    echo "$BST_CACHE_TOKEN" > /tmp/bst-cache-token
+    set -x
 
     # Start a reverse proxy from a unix socket to the real ccache server.
     # This is a bit complicated because buildstream really doesn't want to let us poke into the sandbox.
