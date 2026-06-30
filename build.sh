@@ -34,11 +34,8 @@ bst --error-lines 1000 build kde-linux-payload.bst
 # Only ship the KDE payload. Build dependencies are provided by the image pipeline.
 bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install
 
-mkdir -p upload/artifacts upload/ccache upload/repo
-
-tar --directory=tree/install/.kde-linux-payload-cache \
-    --create --file=upload/ccache/ccache.tar ccache
-rm -rf tree/install/.kde-linux-payload-cache
+mkdir --parents upload/artifacts
+mkdir --parents upload/repo
 
 mkdir -p tree/debug/usr/{lib,src}/
 mv tree/install/usr/lib/debug tree/debug/usr/lib/
