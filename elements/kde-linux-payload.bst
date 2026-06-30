@@ -1004,5 +1004,4 @@ config:
     --refresh-build
     --source-dir "%{build-root}/prepared-state/src"
     --build-dir "%{build-root}/build"
-    --log-dir "%{build-root}/logs"
     $(sed -n "s/^  - //p" kde-linux-payload/targets.yaml)
