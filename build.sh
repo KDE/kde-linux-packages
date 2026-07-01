@@ -74,7 +74,7 @@ if [ "${CI_COMMIT_BRANCH:-}" != "master" ]; then
     S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/testing"
 fi
 
-if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
+if [ "${KDECI_BUILD}" = "TRUE" ]; then
     # Keep the images pipeline on the same KDE Linux package mirror version.
     cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 
