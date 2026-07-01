@@ -43,7 +43,7 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     kill ${HOST_PID} || true
 fi
 
-mkdir artifacts # for gitlab
+# artifacts dir gets created by bootstrap.sh already
 cp --recursive /tmp/host/kde-builder-logs artifacts/
 cp --recursive ~/.cache/buildstream/logs artifacts/buildstream-logs
 
