@@ -195,3 +195,6 @@ override appstream:
 override drkonqi:
     cmake-options: -DWITH_PYTHON_VENDORING=OFF
 
+override plasma-wayland-protocols:
+    # temporary for https://invent.kde.org/libraries/plasma-wayland-protocols/-/merge_requests/139
+    cmake-options: -DQT_MAJOR_VERSION=6 -DBUILD_WITH_QT6=ON
