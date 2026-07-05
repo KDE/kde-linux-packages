@@ -11,5 +11,8 @@ fi
 
 [ -d /tmp/host ] || mkdir /tmp/host
 [ -x /tmp/host/caddy ] || cp caddy /tmp/host/caddy
+[ -x /tmp/host/kde-builder-logs ] || cp caddy /tmp/host/kde-builder-logs
+# Make sure the build namespace can write into the logs directory
+chmod 777 /tmp/host/kde-builder-logs
 
 exec ./caddy run
