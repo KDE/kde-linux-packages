@@ -29,12 +29,17 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     # Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
     ./host.sh &
     HOST_PID=$!
-
-    function finish {
-        kill ${HOST_PID} || true
-    }
-    trap finish EXIT INT ABRT TERM
 fi
+
+function finish {
+    set +e
+    if [ "$HOST_PID" != "" ]; then
+        kill ${HOST_PID} || true
+    fi
+    cp --recursive /tmp/host/kde-builder-logs artifacts/
+    cp --recursive ~/.cache/buildstream/logs artifacts/buildstream-logs
+}
+trap finish EXIT INT ABRT TERM
 
 bst source track kde-linux-payload.bst
 bst build kde-linux-payload.bst
@@ -44,8 +49,6 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
 fi
 
 mkdir artifacts # for gitlab
-cp --recursive /tmp/host/kde-builder-logs artifacts/
-cp --recursive ~/.cache/buildstream/logs artifacts/buildstream-logs
 
 # Only ship the KDE payload. Build dependencies are provided by the image pipeline.
 bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install
