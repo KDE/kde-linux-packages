@@ -36,6 +36,8 @@ function finish {
     if [ "$HOST_PID" != "" ]; then
         kill ${HOST_PID} || true
     fi
+
+    [ -d artifacts ] || mkdir artifacts
     cp --recursive /tmp/host/kde-builder-logs artifacts/
     cp --recursive ~/.cache/buildstream/logs artifacts/buildstream-logs
 }
@@ -48,7 +50,7 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     kill ${HOST_PID} || true
 fi
 
-mkdir artifacts # for gitlab
+[ -d artifacts ] || mkdir artifacts
 
 # Only ship the KDE payload. Build dependencies are provided by the image pipeline.
 bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install
