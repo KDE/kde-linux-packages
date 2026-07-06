@@ -44,7 +44,17 @@ function finish {
 trap finish EXIT INT ABRT TERM
 
 bst source track kde-linux-payload.bst
-bst build kde-linux-payload.bst
+# Make sure most of everything will be in the cache for the imaging pipeline.
+# Bit of a hack until we move things here.
+bst build \
+    kde-linux.bst:os/deps.bst \
+    kde-linux.bst:os/deps-core.bst \
+    kde-linux.bst:os/deps-kde.bst \
+    kde-linux.bst:os/initial-scripts.bst \
+    kde-linux.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
+    kde-linux.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
+    kde-linux.bst:components/calamares.bst \
+    kde-linux-payload.bst
 
 if [ "$KDECI_BUILD" = "TRUE" ]; then
     kill ${HOST_PID} || true
