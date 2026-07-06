@@ -5,9 +5,9 @@ kind: junction
 
 sources:
 - kind: git_repo
-  url: invent:apol/kde-linux.git
-  track: work/apol/bst-5
-  ref: 295f0234b5cae874cd518f33fccc01a6ae2b0d73
+  url: invent:sitter/kde-buildstream.git
+  track: master
+  ref: 9ab3dfefd5b628d716b3fb99e749522707d8ef32
 
 config:
   overrides:
