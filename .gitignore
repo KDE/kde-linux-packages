@@ -9,7 +9,6 @@ artifacts
 tree/
 upload/
 spaghetti.json
-ccache/*
-!ccache/.gitkeep
+ccache
 .bst/
-__pycache__/
+__pycache__

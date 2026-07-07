@@ -12,8 +12,9 @@ rm -rf tree upload
 HOST_PID=""
 if [ "$KDECI_BUILD" = "TRUE" ]; then
     # Set up cache overrides
+    git clone --depth=1 https://invent.kde.org/sitter/kde-buildstream.git
     mkdir --parents ~/.config
-    cp buildstream.conf ~/.config/buildstream.conf
+    cp kde-buildstream/buildstream.conf.writable ~/.config/buildstream.conf
     set +x
     echo "$BST_CACHE_TOKEN" > /tmp/bst-cache-token
     set -x

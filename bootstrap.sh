@@ -33,7 +33,6 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
         python-minio python-pip debugedit erofs-utils lzip
 
 # The packaged minio (as of 2025-11-28) is broken; install from PyPI instead.
-# Same workaround applied in make-kde-tarball.py.
 pip install minio --break-system-packages
 pip install 'BuildStream>=2.7' dulwich tomlkit --break-system-packages
 

@@ -22,16 +22,12 @@ sources:
 - kind: git_repo
   url: invent:sdk/kde-builder.git
   track: master
-
   ref: c52f10948356822a7e96e405ca9a95e9a74141a4
 - kind: local
   path: kde-builder.yaml.in
   directory: kde-linux-payload
 - kind: local
   path: targets.yaml
-  directory: kde-linux-payload
-- kind: local
-  path: qca-relocatable-headers.patch
   directory: kde-linux-payload
 - kind: kde_builder
   ref: 3d0e6e05d5bec7eaea4ff66e14fff655a4908e6cef68862929a5312117dc1b3f

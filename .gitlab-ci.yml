@@ -14,6 +14,7 @@ variables:
   REPO_METADATA_BRANCH:
     value: "master"
     description: "Branch of sysadmin/repo-metadata to use"
+  KDECI_BUILD: "TRUE"
 
 build:
   stage: build
@@ -28,7 +29,7 @@ build:
       aud: https://tokens.kde.org
   script:
     - sudo ./bootstrap.sh
-    - KDECI_BUILD=TRUE ./build.sh
+    - ./build.sh
   artifacts:
     untracked: false
     when: always
