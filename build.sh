@@ -50,7 +50,6 @@ bst build \
     kde-linux.bst:os/deps.bst \
     kde-linux.bst:os/deps-core.bst \
     kde-linux.bst:os/deps-kde.bst \
-    kde-linux.bst:os/initial-scripts.bst \
     kde-linux.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
     kde-linux.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
     kde-linux.bst:components/calamares.bst \
