@@ -47,12 +47,12 @@ bst source track kde-linux-payload.bst
 # Make sure most of everything will be in the cache for the imaging pipeline.
 # Bit of a hack until we move things here.
 bst build \
-    kde-linux.bst:os/deps.bst \
-    kde-linux.bst:os/deps-core.bst \
-    kde-linux.bst:os/deps-kde.bst \
-    kde-linux.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
-    kde-linux.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
-    kde-linux.bst:components/calamares.bst \
+    kde-buildstream.bst:os/deps.bst \
+    kde-buildstream.bst:os/deps-core.bst \
+    kde-buildstream.bst:os/deps-kde.bst \
+    kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
+    kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
+    kde-buildstream.bst:components/calamares.bst \
     kde-linux-payload.bst
 
 if [ "$KDECI_BUILD" = "TRUE" ]; then
