@@ -4,4 +4,4 @@
 kind: link
 
 config:
-  target: kde-linux.bst:freedesktop-sdk.bst
+  target: kde-buildstream.bst:freedesktop-sdk.bst

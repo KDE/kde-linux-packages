@@ -6,7 +6,7 @@
 kind: manual-run-host
 
 build-depends:
-- kde-linux.bst:os/deps-kde.bst
+- kde-buildstream.bst:os/deps-kde.bst
 
 variables:
   strip-binaries: |
