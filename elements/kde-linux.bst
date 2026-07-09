@@ -1,15 +1,11 @@
-# SPDX-FileCopyrightText: 2025 Aleix Pol Gonzalez <aleix.pol@codethink.co.uk>
+
+
 # SPDX-License-Identifier: BSD-2-Clause
+# SPDX-FileCopyrightText: 2026 Harald Sitter <sitter@kde.org>
 
-kind: junction
+# Backwards compat for when kde-buildstream content was largely in kde-linux
 
-sources:
-- kind: git_repo
-  url: invent:sitter/kde-buildstream.git
-  track: master
-  ref: b01a7180665f3e3851877d106e9e9b4c063a9999
+kind: link
 
 config:
-  overrides:
-    plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst
-    plugins/buildstream-plugins-community.bst: plugins/buildstream-plugins-community.bst
+  target: kde-buildstream.bst
