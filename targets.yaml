@@ -18,6 +18,7 @@ targets:
   - kio-admin
   - kio-fuse
   - kio-gdrive
+  - komplete
   - plasma-setup
   - plasma-wayland-protocols
   - konlineaccounts
