@@ -118,7 +118,7 @@ def install_arch(packages):
     packages = list(set(packages))
     # supremely awesome hack to make the build succeed with part of python pips installed from pip and the other from pacman
     # this either needs fixing properly or we need to move to buildstream!
-    subprocess.run(["sh", "-c", "rm -rfv /usr/lib/python*/site-packages/{psutil,click}"], check=True)
+    subprocess.run(["sh", "-c", "rm -rfv /usr/lib/python*/site-packages/{psutil,click}*"], check=True)
     cmd = ["pacman", "-S", "--noconfirm", "--needed", "--asdeps"] + packages
     logger.info(f"Installing {len(packages)} packages via pacman: {', '.join(sorted(packages))}")
     result = subprocess.run(cmd)
