@@ -29,8 +29,7 @@ pacman-key --populate
 # --refresh twice forces a cache refresh
 pacman --sync --refresh --refresh --noconfirm --sysupgrade \
         sudo base-devel git ninja rsync openssh ccache \
-        python-yaml python-setproctitle python-requests python-srcinfo \
-        python-minio python-pip debugedit erofs-utils
+        debugedit erofs-utils
 
 # The packaged minio (as of 2025-11-28) is broken; install from PyPI instead.
 # Same workaround applied in make-kde-tarball.py.
