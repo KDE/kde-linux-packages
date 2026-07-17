@@ -33,7 +33,7 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
 
 # The packaged minio (as of 2025-11-28) is broken; install from PyPI instead.
 # Same workaround applied in make-kde-tarball.py.
-pip install minio --break-system-packages
+pip install minio setproctitle --break-system-packages
 
 git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder
 ln -s /kde-builder/kde-builder /usr/local/bin
