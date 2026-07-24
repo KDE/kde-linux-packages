@@ -23,7 +23,6 @@ targets:
   - konlineaccounts
   - konsole
   - kpmcore
-  - kunifiedpush
   - kup
   - package-compatibility-helper
   - partitionmanager
