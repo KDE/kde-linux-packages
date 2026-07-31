@@ -52,6 +52,9 @@ function finish {
 }
 trap finish EXIT INT ABRT TERM
 
+# Somewhat temporary perhaps. While developing the buildstream version we only
+# ever need the latest buildstream stuff. No sense manually bumping it all the time.
+bst source track kde-buildstream.bst
 bst source track kde-linux-payload.bst
 # Make sure most of everything will be in the cache for the imaging pipeline.
 # Bit of a hack until we move things here.
