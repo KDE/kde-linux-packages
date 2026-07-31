@@ -19,8 +19,8 @@ sed -i 's/NoProgressBar//' /etc/pacman.conf
 
 mkdir -p "$ARTIFACTS_DIR"
 
-LATEST=$(curl --fail --silent http://archive.kde-linux.haraldsitter.eu/latest.txt)
-REPO="http://archive.kde-linux.haraldsitter.eu/${LATEST}"
+LATEST=$(curl --fail --silent https://archive.kde-linux.haraldsitter.eu/latest.txt)
+REPO="https://archive.kde-linux.haraldsitter.eu/${LATEST}"
 echo "$REPO" > "$ARTIFACTS_DIR/build_repo.txt"
 echo "Server = ${REPO}/\$repo/os/\$arch" | sudo tee "$MIRRORLIST" > /dev/null
 
