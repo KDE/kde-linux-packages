@@ -6,10 +6,15 @@ set -eux
 
 export CI_PROJECT_DIR="${CI_PROJECT_DIR:-$PWD}"
 export KDECI_BUILD="${KDECI_BUILD:-FALSE}"
+export PUBLISH_DIR="testing"
+if [ "${CI_COMMIT_BRANCH:-}" != "testing-buildstream" ]; then
+    export PUBLISH_DIR="testing-buildstream"
+fi
 
 rm -rf tree upload
 
 HOST_PID=""
+PUBLISH_RESOURCE_HOLDER_PID=""
 if [ "$KDECI_BUILD" = "TRUE" ]; then
     # Set up cache overrides
     git clone --depth=1 https://invent.kde.org/sitter/kde-buildstream.git
@@ -18,24 +23,27 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     set +x
     echo "$BST_CACHE_TOKEN" > /tmp/bst-cache-token
     set -x
-
-    # Start a reverse proxy from a unix socket to the real ccache server.
-    # This is a bit complicated because buildstream really doesn't want to let us poke into the sandbox.
-    # We'll create a host dir in tmp. This will be mounted into the sandbox via a somewhat naughty bst plugin.
-    # Inside the sandbox we stand up another reverse proxy so ccache knows this is http.
-    # Basically
-    #   ccache(sandbox) -> caddy(sandbox) -> socket (mounted) -> caddy(host) -> real.ccache.server
-    #
-    # host does act as a general interaction point in this set up as we also want a way to collect logs from the kde-builder stage anyway.
-    # Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
-    ./host.sh &
-    HOST_PID=$!
 fi
+
+# Start a reverse proxy from a unix socket to the real ccache server.
+# This is a bit complicated because buildstream really doesn't want to let us poke into the sandbox.
+# We'll create a host dir in tmp. This will be mounted into the sandbox via a somewhat naughty bst plugin.
+# Inside the sandbox we stand up another reverse proxy so ccache knows this is http.
+# Basically
+#   ccache(sandbox) -> caddy(sandbox) -> socket (mounted) -> caddy(host) -> real.ccache.server
+#
+# host does act as a general interaction point in this set up as we also want a way to collect logs from the kde-builder stage anyway.
+# Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
+./host.sh &
+HOST_PID=$!
 
 function finish {
     set +e
     if [ "$HOST_PID" != "" ]; then
         kill ${HOST_PID} || true
+    fi
+    if [ "$PUBLISH_RESOURCE_HOLDER_PID" != "" ]; then
+        kill ${PUBLISH_RESOURCE_HOLDER_PID} || true
     fi
 
     [ -d artifacts ] || mkdir artifacts
@@ -83,13 +91,18 @@ zstd --rm --threads="$(nproc)" upload/artifacts/debug.tar \
 tar --directory=tree/install --create \
     --file=upload/artifacts/install.tar.zst --zstd .
 
-S3_REMOTE="storage.kde.org/kde-linux-packages/testing/"
-
-if [ "${CI_COMMIT_BRANCH:-}" != "master" ]; then
-    S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/testing"
-fi
-
 if [ ! -f /.dockerenv ]; then
+    S3_REMOTE="storage.kde.org/kde-linux-packages/$PUBLISH_DIR/"
+    if [[ "${CI_COMMIT_BRANCH:}" == work/* ]]; then
+        S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$PUBLISH_DIR/"
+    fi
+
+    # Claim the publish lock
+    curl https://resources.kde-linux.haraldsitter.eu/v1/locks
+    git clone https://invent.kde.org/sitter/kde-linux-resource-semaphore
+    kde-linux-resource-semaphore/resource-holder --resource packages-storage-$PUBLISH_DIR &
+    PUBLISH_RESOURCE_HOLDER_PID=$!
+
     # Keep the images pipeline on the same KDE Linux package mirror version.
     cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 
