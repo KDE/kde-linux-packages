@@ -4,6 +4,7 @@
 targets:
   - ark
   - auto-chmod
+  - clazy
   - dolphin
   - dolphin-plugins
   - ffmpegthumbs
