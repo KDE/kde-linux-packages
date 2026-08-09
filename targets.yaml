@@ -17,7 +17,6 @@ targets:
   - kimageformats
   - kio-admin
   - kio-fuse
-  - kio-gdrive
   - plasma-setup
   - plasma-wayland-protocols
   - konlineaccounts
