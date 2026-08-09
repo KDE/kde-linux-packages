@@ -7,7 +7,7 @@ set -eux
 export CI_PROJECT_DIR="${CI_PROJECT_DIR:-$PWD}"
 export KDECI_BUILD="${KDECI_BUILD:-FALSE}"
 export PUBLISH_DIR="testing"
-if [ "${CI_COMMIT_BRANCH:-}" != "testing-buildstream" ]; then
+if [ "${CI_COMMIT_BRANCH:-}" = "buildstream" ]; then
     export PUBLISH_DIR="testing-buildstream"
 fi
 
@@ -96,12 +96,6 @@ tar --directory=tree/install --create \
 
 if [ ! -f /.dockerenv ]; then
     S3_REMOTE="storage.kde.org/kde-linux-packages/$PUBLISH_DIR/"
-    if [[ "${CI_COMMIT_BRANCH:-}" == "buildstream" ]]; then
-        # Slight hack until https://phabricator.kde.org/T18778 is resolved (giving buildstream access to the packages bucket)
-        # Mark our upload dir so we can find it again in the ci-artifacts.
-        touch upload/this-is-buildstream
-        S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$PUBLISH_DIR/"
-    fi
     if [[ "${CI_COMMIT_BRANCH:-}" == work/* ]]; then
         S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$PUBLISH_DIR/"
     else
