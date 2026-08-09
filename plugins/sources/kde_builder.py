@@ -98,7 +98,7 @@ class KdeBuilderSource(Source):
         payload_candidates = [
             path
             for path in Path(previous_sources_dir).glob("**/kde-builder")
-            if path.is_file() and (path.parent / "kde_builder_lib").is_dir()
+            if path.is_file() and (path.parent / "kde_builder").is_dir()
         ]
         if len(payload_candidates) != 1:
             raise SourceError(
