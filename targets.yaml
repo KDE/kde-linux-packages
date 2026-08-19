@@ -28,4 +28,5 @@ targets:
   - pulseaudio-qt
   - selenium-webdriver-at-spi
   - spectacle
+  - sysupdate-kcm
   - workspace
