@@ -114,6 +114,9 @@ global:
   # Projects that are not supported or needed on KDE Linux
   ignore-projects:
 
+  # gpgmepp master depends on an unreleased gpgme (2.1.3). Use freedesktop-sdk's
+  - gpgmepp
+
   # PackageKit integration not needed (avoid showing pacman packages)
   - packagekit-qt
 
