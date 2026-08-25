@@ -83,7 +83,9 @@ cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
     CI_UTILITIES_DIR="$PWD/ci-utilities"
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/" --remote storage.kde.org/kde-linux-packages/testing/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/artifacts/" --remote storage.kde.org/kde-linux-packages/testing/artifacts/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/ccache/" --remote storage.kde.org/kde-linux-packages/testing/ccache/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/repo/" --remote storage.kde.org/kde-linux-packages/testing/repo/ --verbose
     cd "$CI_PROJECT_DIR"
     rm --recursive --force upload pkgbuilds
     git clean -dfx --exclude=artifacts
