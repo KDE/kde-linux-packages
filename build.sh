@@ -11,10 +11,17 @@ if [ -f /.dockerenv ]; then
     export CI_PROJECT_DIR=/work
 fi
 
+CCACHE_URL="https://storage.kde.org/kde-linux-packages/testing/ccache"
+
 if [ ! -f /.dockerenv ]; then
     # In CI, pull a warm ccache from object storage to speed up the build.
-    curl --fail https://storage.kde.org/kde-linux-packages/testing/ccache/ccache.tar \
-        | tar --extract --directory=/builder || true
+    # It's stored as one tarball per shard, listed in manifest.txt.
+    mkdir -p /builder/ccache
+    curl --fail --silent "$CCACHE_URL/manifest.txt" \
+        | xargs --no-run-if-empty --max-args=1 --max-procs=4 \
+            sh -c 'curl --fail --silent "$0/$1" | tar --extract --directory=/builder' \
+                "$CCACHE_URL" \
+        || true
 fi
 
 export CCACHE_DIR="/builder/ccache"
@@ -60,7 +67,23 @@ mv tree/install/usr/src/debug tree/debug/usr/src/
 rm -rf upload
 mkdir -p upload/artifacts upload/ccache
 
-tar --directory=/builder --create --file=upload/ccache/ccache.tar ccache
+# One tarball per ccache shard directory instead of a single 46G object.
+# Uncompressed, ccache already compresses its own contents.
+: > upload/ccache/manifest.txt
+for shard_dir in "$CCACHE_DIR"/*/; do
+    [ -d "$shard_dir" ] || continue
+    shard="$(basename "$shard_dir")"
+    tar --directory=/builder --create \
+        --file="upload/ccache/ccache-$shard.tar" "ccache/$shard"
+    echo "ccache-$shard.tar" >> upload/ccache/manifest.txt
+done
+
+# ccache.conf and friends
+(cd /builder && find ccache -maxdepth 1 ! -type d -print0) \
+    | tar --directory=/builder --create --null --files-from=- \
+        --file=upload/ccache/ccache-meta.tar
+echo "ccache-meta.tar" >> upload/ccache/manifest.txt
+
 tar --directory=tree/debug --create --file=upload/artifacts/debug.tar .
 
 mkfs.erofs -zzstd -C65536 -Efragments,ztailpacking --tar=f \
