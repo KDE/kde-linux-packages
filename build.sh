@@ -96,7 +96,7 @@ tar --directory=tree/install --create \
 
 if [ ! -f /.dockerenv ]; then
     S3_REMOTE="storage.kde.org/kde-linux-packages/$PUBLISH_DIR/"
-    if [[ "${CI_COMMIT_BRANCH:-}" == work/* ]]; then
+    if [[ -z "${CI_COMMIT_BRANCH:-}" || "${CI_COMMIT_BRANCH:-}" == work/* ]]; then
         S3_REMOTE="storage.kde.org/ci-artifacts/$CI_PROJECT_PATH/j/$CI_JOB_ID/$PUBLISH_DIR/"
     else
         # Claim the publish lock
