@@ -314,9 +314,13 @@ class KdeBuilderSource(Source):
         source_dir = Path(state_dir) / "src"
         if not source_dir.is_dir():
             source_dir = Path(state_dir)
+        repositories = {
+            *source_dir.iterdir(),
+            Path(state_dir) / "sysadmin-repo-metadata",
+        }
         return sorted(
             path / ".git"
-            for path in source_dir.iterdir()
+            for path in repositories
             if (path / ".git").is_dir()
         )
 
