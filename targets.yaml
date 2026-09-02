@@ -3,6 +3,7 @@
 
 targets:
   - ark
+  - appstream
   - auto-chmod
   - clazy
   - dolphin
@@ -14,6 +15,7 @@ targets:
   - kdegraphics-thumbnailers
   - kde-inotify-survey
   - kdenetwork-filesharing
+  - kdsoap
   - kdialog
   - kimageformats
   - kio-admin
@@ -28,6 +30,7 @@ targets:
   - package-compatibility-helper
   - partitionmanager
   - pulseaudio-qt
+  - qtkeychain
   - selenium-webdriver-at-spi
   - spectacle
   - workspace
