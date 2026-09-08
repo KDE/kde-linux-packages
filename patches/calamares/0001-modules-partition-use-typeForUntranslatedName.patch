@@ -1,0 +1,32 @@
+From d6d0b2b0f0b8b900b31d960c7afb9d20e6848aab Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bshah@kde.org>
+Date: Tue, 1 Sep 2026 16:54:52 +0530
+Subject: [PATCH] modules/partition: use typeForUntranslatedName
+
+This is adaption of calamares code after changes in kpmcore, Please see
+following commit.
+
+https://commits.kde.org/system/kpmcore/e6bbd51f897f1b
+---
+ src/modules/partition/core/PartUtils.cpp | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/src/modules/partition/core/PartUtils.cpp b/src/modules/partition/core/PartUtils.cpp
+index 3652c5c0f..db159697a 100644
+--- a/src/modules/partition/core/PartUtils.cpp
++++ b/src/modules/partition/core/PartUtils.cpp
+@@ -589,7 +589,11 @@ canonicalFilesystemName( const QString& fsName, FileSystem::Type* fsType )
+ 
+     QStringList fsLanguage { QLatin1String( "C" ) };  // Required language list to turn off localization
+ 
++#if WITH_KPMcore > 0x261100
++    if ( ( type = FileSystem::typeForUntranslatedName( fsName ) ) != FileSystem::Unknown )
++#else
+     if ( ( type = FileSystem::typeForName( fsName, fsLanguage ) ) != FileSystem::Unknown )
++#endif
+     {
+         return fsName;
+     }
+-- 
+2.55.0
+
