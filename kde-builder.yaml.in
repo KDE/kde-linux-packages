@@ -185,6 +185,9 @@ override qca:
 override plasma-login-manager:
     cmake-options: -DPAM_OS_CONFIGURATION=kde-linux
 
+override kwallet-pam:
+    cmake-options: -DKWALLETD_BIN_PATH=/usr/bin/ksecretd
+
 # Kapsule is only enabled for KDE Linux because it's still experimental
 override konsole:
     cmake-options: -DWITH_KAPSULE=ON
