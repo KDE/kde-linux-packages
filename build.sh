@@ -64,7 +64,6 @@ bst build \
     kde-buildstream.bst:os/deps-kde.bst \
     kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
     kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
-    kde-buildstream.bst:components/calamares.bst \
     kde-linux-payload.bst
 
 if [ "$KDECI_BUILD" = "TRUE" ]; then
