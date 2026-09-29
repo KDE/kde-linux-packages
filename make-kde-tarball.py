@@ -31,7 +31,7 @@ def patch_builder_config(log_dir):
 def build(targets):
     env = os.environ.copy()
     env["PATH"] = "/work/strip:" + env["PATH"]
-    args = ["kde-builder", "--refresh-build"] + targets
+    args = ["kde-builder", "--clean-build"] + targets
     logger.info(f"Running: {' '.join(args)}")
     result = subprocess.run(args, env=env)
     if result.returncode != 0:

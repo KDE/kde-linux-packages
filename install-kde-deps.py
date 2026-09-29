@@ -46,7 +46,7 @@ def clear_package_cache():
 def get_all_build_targets(targets):
     logger.info("Querying kde-builder for true build targets (respecting ignore list)...")
     result = subprocess.run(
-        ["kde-builder", "--include-dependencies", "--no-stop-on-failure", "--pretend"] + targets,
+        ["kde-builder", "--no-stop-on-failure", "--pretend"] + targets,
         capture_output=True,
         text=True,
     )
