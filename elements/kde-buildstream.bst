@@ -11,5 +11,4 @@ sources:
 
 config:
   overrides:
-    plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst
     plugins/buildstream-plugins-community.bst: plugins/buildstream-plugins-community.bst
