@@ -6,7 +6,7 @@ kind: manual
 description: Pretend we are debian so cmake and meson put libs in the right path
 
 build-depends:
-  - freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
+  - kde-buildstream.bst:freedesktop-sdk.bst:public-stacks/runtime-gnu.bst
 
 config:
   install-commands:
