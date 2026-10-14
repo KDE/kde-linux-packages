@@ -7,9 +7,8 @@ sources:
 - kind: git_repo
   url: invent:sitter/kde-buildstream.git
   track: master
-  ref: 80e85f3b05668297814a72cb545b6d7b395e88e3
+  ref: aca7b1141df1148eeca9edb70d25342a053a9c2b
 
 config:
   overrides:
-    plugins/buildstream-plugins.bst: plugins/buildstream-plugins.bst
     plugins/buildstream-plugins-community.bst: plugins/buildstream-plugins-community.bst
