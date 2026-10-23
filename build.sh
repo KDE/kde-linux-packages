@@ -13,7 +13,6 @@ fi
 
 rm -rf tree upload
 
-HOST_PID=""
 PUBLISH_RESOURCE_HOLDER_PID=""
 if [ "$KDECI_BUILD" = "TRUE" ]; then
     # Set up cache overrides
@@ -25,29 +24,13 @@ if [ "$KDECI_BUILD" = "TRUE" ]; then
     set -x
 fi
 
-# Start a reverse proxy from a unix socket to the real ccache server.
-# This is a bit complicated because buildstream really doesn't want to let us poke into the sandbox.
-# We'll create a host dir in tmp. This will be mounted into the sandbox via a somewhat naughty bst plugin.
-# Inside the sandbox we stand up another reverse proxy so ccache knows this is http.
-# Basically
-#   ccache(sandbox) -> caddy(sandbox) -> socket (mounted) -> caddy(host) -> real.ccache.server
-#
-# host does act as a general interaction point in this set up as we also want a way to collect logs from the kde-builder stage anyway.
-# Mind that this only applies to the payload.bst, the other elements are all built as per usual bst constraints (e.g. no network during build).
-./host.sh &
-HOST_PID=$!
-
 function finish {
     set +e
-    if [ "$HOST_PID" != "" ]; then
-        kill ${HOST_PID} || true
-    fi
     if [ "$PUBLISH_RESOURCE_HOLDER_PID" != "" ]; then
         kill ${PUBLISH_RESOURCE_HOLDER_PID} || true
     fi
 
     [ -d artifacts ] || mkdir artifacts
-    cp --recursive /tmp/host/kde-builder-logs artifacts/
     cp --recursive ~/.cache/buildstream/logs artifacts/buildstream-logs
 }
 trap finish EXIT INT ABRT TERM
@@ -55,7 +38,6 @@ trap finish EXIT INT ABRT TERM
 # Somewhat temporary perhaps. While developing the buildstream version we only
 # ever need the latest buildstream stuff. No sense manually bumping it all the time.
 bst source track kde-buildstream.bst
-bst source track kde-linux-payload.bst
 # Make sure most of everything will be in the cache for the imaging pipeline.
 # Bit of a hack until we move things here.
 bst build \
@@ -64,16 +46,21 @@ bst build \
     kde-buildstream.bst:os/deps-kde.bst \
     kde-buildstream.bst:freedesktop-sdk.bst:components/ovmf-maybe.bst \
     kde-buildstream.bst:freedesktop-sdk.bst:vm/prepare-image.bst \
-    kde-linux-payload.bst
-
-if [ "$KDECI_BUILD" = "TRUE" ]; then
-    kill ${HOST_PID} || true
-fi
+    kde-buildstream.bst:kde.bst
 
 [ -d artifacts ] || mkdir artifacts
 
-# Only ship the KDE payload. Build dependencies are provided by the image pipeline.
-bst artifact checkout kde-linux-payload.bst --deps none --directory tree/install
+# Ship KDE artifacts, including build-only KDE dependencies and development files.
+# Qt and other dependencies are supplied by the image pipeline. Checking out the
+# stack's dependency closure directly would also ship FreeDesktop SDK artifacts.
+bst show --deps all --format '%{name}' kde-buildstream.bst:kde.bst > artifacts/kde-elements.txt
+while IFS= read -r element; do
+    case "$element" in
+        kde-buildstream.bst:kde/*)
+            bst artifact checkout "$element" --deps none --no-integrate --force --directory tree/install
+            ;;
+    esac
+done < artifacts/kde-elements.txt
 
 mkdir --parents upload/artifacts
 mkdir --parents upload/repo
