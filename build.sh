@@ -11,7 +11,7 @@ if [ -f /.dockerenv ]; then
     export CI_PROJECT_DIR=/work
 fi
 
-CCACHE_URL="https://storage.kde.org/kde-linux-packages/testing/ccache"
+CCACHE_URL="https://kde-linux-packages.s3.kde.org/testing/ccache"
 
 if [ ! -f /.dockerenv ]; then
     # In CI, pull a warm ccache from object storage to speed up the build.
@@ -106,9 +106,9 @@ cp "$CI_PROJECT_DIR/artifacts/build_repo.txt" upload/repo/build_repo.txt
 if [ ! -f /.dockerenv ] && [ "${CI_COMMIT_BRANCH:-}" = "master" ]; then
     git clone --depth=1 https://invent.kde.org/sysadmin/ci-utilities.git
     CI_UTILITIES_DIR="$PWD/ci-utilities"
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/artifacts/" --remote storage.kde.org/kde-linux-packages/testing/artifacts/ --verbose
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/ccache/" --remote storage.kde.org/kde-linux-packages/testing/ccache/ --verbose
-    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/repo/" --remote storage.kde.org/kde-linux-packages/testing/repo/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/artifacts/" --remote s3.kde.org/kde-linux-packages/testing/artifacts/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/ccache/" --remote s3.kde.org/kde-linux-packages/testing/ccache/ --verbose
+    "$CI_UTILITIES_DIR/sync-s3-folder.py" --mode upload --delete --local "$PWD/upload/repo/" --remote s3.kde.org/kde-linux-packages/testing/repo/ --verbose
     cd "$CI_PROJECT_DIR"
     rm --recursive --force upload pkgbuilds
     git clean -dfx --exclude=artifacts
