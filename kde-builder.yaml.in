@@ -123,6 +123,9 @@ global:
   # Not relevant for a full desktop environment
   - plasma-nano
 
+  # A playground app not considered a part of Plasma yet
+  - plasma-assist
+
   # We use plasma-login-manager (includes its own KCM)
   - sddm-kcm
 
