@@ -1,5 +1,5 @@
-# SPDX-FileCopyrightText: Freedesktop-SDK Developers
-# SPDX-License-Identifier: MIT
+# SPDX-FileCopyrightText: 2026 Aleix Pol <aleixpol@kde.org>
+# SPDX-License-Identifier: BSD-2-Clause
 
 kind: junction
 
