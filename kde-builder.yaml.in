@@ -201,7 +201,7 @@ override appstream:
     # Force disable the variable; appstream builds fine without it anyway
     set-env:
         LD_LIBRARY_PATH: ""
-    meson-options: --libdir=lib/@GNU_TRIPLET@ -Dqt=true -Ddocs=false -Dapidocs=false -Dman=false
+    meson-options: --libdir=lib/@GNU_TRIPLET@ -Dqt=true -Ddocs=false -Dapidocs=false -Dman=false -Dcompose=true
 
 override drkonqi:
     cmake-options: -DWITH_PYTHON_VENDORING=OFF
