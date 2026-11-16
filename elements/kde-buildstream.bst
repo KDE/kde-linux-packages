@@ -7,7 +7,7 @@ sources:
 - kind: git_repo
   url: invent:sitter/kde-buildstream.git
   track: master
-  ref: 4e37f88b0fa681f78936e8de1fe35003c978128d
+  ref: 1ac4a9b7f7e6df7f237e4d34f15958b234ecf9fe
 
 config:
   overrides:
