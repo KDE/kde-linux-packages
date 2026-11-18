@@ -1024,3 +1024,12 @@ config:
     --source-dir "%{build-root}/prepared-state/src"
     --build-dir "%{build-root}/build"
     $(sed -n "s/^  - //p" kde-linux-payload/targets.yaml)
+  install-commands:
+  # kiconthemes reads icon-theme.cache to skip most file lookups. Only for themes we ship in full,
+  # a hicolor cache from here would hide the hicolor icons coming from elsewhere.
+  - |
+    for theme in "%{install-root}/usr/share/icons/"*/; do
+        if [ -f "$theme/index.theme" ]; then
+            gtk-update-icon-cache --quiet --force "$theme"
+        fi
+    done
