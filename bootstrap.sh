@@ -35,10 +35,7 @@ pacman --sync --refresh --refresh --noconfirm --sysupgrade \
 # Same workaround applied in make-kde-tarball.py.
 pip install minio setproctitle --break-system-packages
 
-# Install the v26.10 tag to prevent breaking changes.
-# This can probably stay as is until the whole kde-builder gets superseded by Buildstream
-# https://invent.kde.org/sdk/kde-builder/-/work_items/252
-git clone --branch v26.10 --depth 1 https://invent.kde.org/sdk/kde-builder.git /kde-builder
+git clone https://invent.kde.org/sdk/kde-builder.git /kde-builder
 ln -s /kde-builder/kde-builder /usr/local/bin
 
 id user 2>/dev/null || useradd -m user
