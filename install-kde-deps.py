@@ -46,27 +46,22 @@ def clear_package_cache():
 def get_all_build_targets(targets):
     logger.info("Querying kde-builder for true build targets (respecting ignore list)...")
     result = subprocess.run(
-        ["kde-builder", "--no-stop-on-failure", "--pretend"] + targets,
+        ["kde-builder", "--dependency-tree-fullpath"] + targets,
         capture_output=True,
-        text=True,
+        text=True
     )
-    if result.stderr:
-        logger.debug("kde-builder stderr:\n%s", result.stderr)
-    resolved = []
+    resolved = set()
     for line in result.stdout.splitlines():
-        if "Building " in line:
-            part = line.split("Building ", 1)[1]
-            module = part.split()[0]
-            module = module.split("/")[-1]
-            resolved.append(module)
+        module = line.split("/")[-1]
+        resolved.add(module)
     if not resolved:
         logger.error("kde-builder stdout:\n%s", result.stdout)
         logger.error("kde-builder stderr:\n%s", result.stderr)
         raise RuntimeError(
-            f"kde-builder --pretend returned no buildable modules (exit {result.returncode})"
+            f"kde-builder returned no dependencies (exit {result.returncode})"
         )
-    logger.info(f"Resolved {len(resolved)} modules from kde-builder: {', '.join(resolved)}")
-    return resolved
+    logger.info(f"Resolved {len(resolved)} modules from kde-builder: {', '.join(sorted(resolved))}")
+    return list(resolved)
 
 
 def load_deps_from_yaml(url, targets):
